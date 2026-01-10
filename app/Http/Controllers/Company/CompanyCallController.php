@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers\Company;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+namespace App\Http\Controllers\Company;
+
+use App\Http\Controllers\Controller;
+use App\Models\Call;
+use Illuminate\Http\Request;
+
+class CompanyCallController extends Controller
+{
+    public function index(Request $request)
+    {
+        $companyId = $request->user()->company_id;
+        // Calls belong to invoices which belong to company_dids which belong to company
+        // Or we might have improved relationship in future. For now, query via nested relation
+        $calls = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+            $query->where('company_id', $companyId);
+        })->latest()->paginate(20);
+
+        return response()->json($calls);
+    }
+
+    public function show(Request $request, $id)
+    {
+        $companyId = $request->user()->company_id;
+        $call = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+            $query->where('company_id', $companyId);
+        })->where('id', $id)->firstOrFail();
+
+        return response()->json($call);
+    }
+
+    public function feedback(Request $request, $id)
+    {
+        $companyId = $request->user()->company_id;
+        $call = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+            $query->where('company_id', $companyId);
+        })->where('id', $id)->firstOrFail();
+
+        $request->validate([
+            'company_rating' => 'required|integer|min:1|max:5',
+            'company_feedback' => 'nullable|string',
+        ]);
+
+        $call->update([
+            'company_rating' => $request->company_rating,
+            'company_feedback' => $request->company_feedback,
+        ]);
+
+        return response()->json(['message' => 'Feedback submitted successfully', 'call' => $call]);
+    }
+}

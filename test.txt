@@ -1,0 +1,65 @@
+first understand the whole context
+
+i have to create api for company portal
+
+and i also want to setup admin portal in vue of its own
+
+tables and information 
+companies table
+id,email (unique) ,phone (unique), cnic/pasport (image url), bussiness_name, bussiness_address, verify_email (bool)(otp sent to email to verify when register), verify_phone (bool) (our team manually call the company and verify its account)
+
+dids table
+id, did_number
+
+company_dids
+id, company_id, did_id,price_per_min, start_date, end_date, status(active,inactive), last_use(date)
+
+company_did_invoices table
+id, company_did_id, effective_from(date), effective_to(date), total_minuits_consumption (integer),billed_ammount (company_did_invoices.total_minuits_consumption * company_dids.price_per_min), status (Draft, Finalized, Paid) (Draft will not show on company portal it will show only admin portal)
+
+calls
+id, company_did_invoice_id, session_id, user_phone, call_audio (audio file link),  call_transcreption, duration (integer), disposition (all vicidial call dispositions), ai_feedback, ai_rating, company_feedback, company_rating
+
+     
+
+
+create api for company portal
+there should be company_users table for company portal
+
+company_users table
+id, company_id, name, email, status(active/inactive)
+jab aik company register ho ge to default  company_users table me  row insert ho ge jis ka role admin hoga
+
+or company portal wo use kar sakta hy company_users table se 
+ab wo cpmpany portal sy new user create kar sakta hy or apny company k users k roles change kar sakta hy
+
+compny_user_activity_logs table
+id, company_user_id, activity_type, activity_details, activity_date
+
+bhe manage hoga to cpmpany portal k sary logs create hon gy k kn sy company user ny kn c call ko kia rating d hy kia feedback dia hy 
+kia kam kea hy or yeh sab kam api main hoga
+
+ise trha hamary vue portal main hamara admin portal bany ga
+or us main admins table k users access kar sakain gy
+admins table
+id, name, email, status(active/inactive)
+
+ab yeh admins hamary admin portal main access kar sakain gy
+or us main bhe roles hongi admin, super admin wagera
+
+ab admin portal main 
+hamara admin company profile ko approve kary ga. 
+dids table main new did add kary ga
+
+company_dids pr crud kar sakta hy
+
+company_did_invoices k status ko finalize kar sakta hy
+
+baqi chezain view kar sakta hy
+
+
+
+
+
+
+
