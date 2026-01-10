@@ -12,6 +12,9 @@ const navItems = [
   { name: 'Companies', path: '/companies', icon: 'Building2' },
   { name: 'DIDs', path: '/dids', icon: 'Phone' },
   { name: 'Invoices', path: '/invoices', icon: 'FileText' },
+  { name: 'Reports', path: '/reports', icon: 'BarChart' },
+  { name: 'Team', path: '/team', icon: 'Users' },
+  { name: 'Activity Logs', path: '/activity-logs', icon: 'History' },
 ]
 
 function isActive(path: string) {

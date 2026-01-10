@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laratrust\Traits\LaratrustUserTrait;
+use Laratrust\Traits\HasRolesAndPermissions;
 use Laravel\Sanctum\HasApiTokens;
 
-class CompanyUser extends Model
+class CompanyUser extends Authenticatable
 {
-    use HasFactory, SoftDeletes, LaratrustUserTrait, HasApiTokens;
+    use HasFactory, SoftDeletes, HasRolesAndPermissions, HasApiTokens;
 
     protected $fillable = [
         'company_id',

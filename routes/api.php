@@ -43,6 +43,13 @@ Route::prefix('admin')->group(function () {
         // Reports
         Route::get('reports', [\App\Http\Controllers\Admin\ReportController::class, 'index']);
 
+        // Team (Admins)
+        Route::get('admins/roles', [\App\Http\Controllers\Admin\AdminController::class, 'roles']);
+        Route::apiResource('admins', \App\Http\Controllers\Admin\AdminController::class);
+
+        // Activity Logs
+        Route::get('activity-logs', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'index']);
+
         // Calls
         Route::get('calls', [\App\Http\Controllers\Admin\CallController::class, 'index']);
         Route::get('calls/{id}', [\App\Http\Controllers\Admin\CallController::class, 'show']);
@@ -60,7 +67,21 @@ Route::prefix('company')->group(function () {
         Route::post('logout', [CompanyAuthController::class, 'logout']);
         Route::get('me', [CompanyAuthController::class, 'me']);
 
-        // Other Company routes will go here
+        // Company User Management
+        Route::apiResource('users', CompanyUserController::class);
+
+        // Company DIDs
+        Route::get('dids', [CompanyDidController::class, 'index']);
+        Route::get('dids/{id}', [CompanyDidController::class, 'show']);
+
+        // Company Invoices
+        Route::get('invoices', [CompanyInvoiceController::class, 'index']);
+        Route::get('invoices/{id}', [CompanyInvoiceController::class, 'show']);
+
+        // Company Calls
+        Route::get('calls', [CompanyCallController::class, 'index']);
+        Route::get('calls/{id}', [CompanyCallController::class, 'show']);
+        Route::post('calls/{id}/feedback', [CompanyCallController::class, 'addFeedback']);
     });
 });
 

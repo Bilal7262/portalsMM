@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
 use App\Models\CompanyDid;
 use App\Models\Did;
 use Illuminate\Http\Request;
@@ -24,9 +19,6 @@ class CompanyDidController extends Controller
             'end_date' => 'nullable|date|after:start_date',
         ]);
 
-        // Check if DID is already assigned actively or pending
-        // For simplicity, just create. Logic can be refined.
-
         $assignment = CompanyDid::create([
             'company_id' => $request->company_id,
             'did_id' => $request->did_id,
@@ -38,7 +30,9 @@ class CompanyDidController extends Controller
 
         // Update DID status to assigned
         $did = Did::find($request->did_id);
-        $did->update(['status' => 'assigned']);
+        if ($did) {
+            $did->update(['status' => 'assigned']);
+        }
 
         return response()->json([
             'message' => 'DID assigned to company successfully',
@@ -71,7 +65,9 @@ class CompanyDidController extends Controller
 
         // Release DID
         $did = Did::find($assignment->did_id);
-        $did->update(['status' => 'available']);
+        if ($did) {
+            $did->update(['status' => 'available']);
+        }
 
         $assignment->delete();
 

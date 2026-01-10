@@ -44,6 +44,16 @@ const router = createRouter({
           path: 'reports',
           name: 'reports',
           component: () => import('../views/admin/reports/ReportsView.vue'),
+        },
+        {
+          path: 'team',
+          name: 'team',
+          component: () => import('../views/admin/team/TeamView.vue'),
+        },
+        {
+          path: 'activity-logs',
+          name: 'activity-logs',
+          component: () => import('../views/admin/activity-logs/ActivityLogsView.vue'),
         }
       ]
     },

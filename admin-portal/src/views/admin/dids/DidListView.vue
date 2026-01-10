@@ -96,9 +96,10 @@ async function handleAssignDid() {
   
   try {
     await didService.assignDid({
-      did_id: selectedDidForAssignment.value.id,
+      did_id: selectedDidForAssignment.value!.id,
       company_id: Number(assignFormData.value.company_id),
-      price_per_min: Number(assignFormData.value.price_per_min)
+      price_per_min: Number(assignFormData.value.price_per_min),
+      start_date: new Date().toISOString().split('T')[0] as string
     })
     isAssignDialogOpen.value = false
     await fetchDids()

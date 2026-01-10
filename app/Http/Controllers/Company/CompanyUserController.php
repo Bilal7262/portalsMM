@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-namespace App\Http\Controllers\Company;
-
-use App\Http\Controllers\Controller;
 use App\Models\CompanyUser;
 use App\Models\Role;
 use Illuminate\Http\Request;

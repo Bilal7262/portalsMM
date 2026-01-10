@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { Button } from '@/components/ui/button' // Explicit import if barrel file not set up for button yet
 import ButtonComponent from '@/components/ui/button/Button.vue' // Fallback if index not ready
 import Input from '@/components/ui/input/Input.vue'
 import Label from '@/components/ui/label/Label.vue'

@@ -23,6 +23,7 @@ export interface AssignDidData {
     company_id: number
     did_id: number
     price_per_min: number
+    start_date: string
 }
 
 export const didService = {

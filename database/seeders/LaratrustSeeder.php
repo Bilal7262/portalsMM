@@ -17,6 +17,7 @@ class LaratrustSeeder extends Seeder
     public function run()
     {
         $this->truncateLaratrustTables();
+        $this->command->info('Truncation completed');
 
         // 1. Setup Admin Portal Roles & Permissions
         $adminRoles = [
@@ -70,12 +71,16 @@ class LaratrustSeeder extends Seeder
         ];
 
         // Create Permissions and Roles
+        $this->command->info('Creating roles and permissions for admin');
         $this->createRolesAndPermissions($adminRoles, 'admin');
+        $this->command->info('Creating roles and permissions for company');
         $this->createRolesAndPermissions($companyRoles, 'company');
 
         // Create Default Users if enabled
-        if (Config::get('laratrust_seeder.create_users')) {
+        if (true || Config::get('laratrust_seeder.create_users')) {
+            $this->command->info('Creating default users for admin');
             $this->createDefaultUsers($adminRoles, 'admin');
+            $this->command->info('Creating default users for company');
             $this->createDefaultUsers($companyRoles, 'company');
         }
     }
@@ -173,7 +178,8 @@ class LaratrustSeeder extends Seeder
         DB::table('roles')->truncate();
         DB::table('permissions')->truncate();
 
-        if (Config::get('laratrust_seeder.create_users')) {
+        if (true || Config::get('laratrust_seeder.create_users')) {
+            $this->command->info('Truncating Admin, Company and CompanyUser tables');
             DB::table('admins')->truncate();
             DB::table('company_users')->truncate();
             DB::table('companies')->truncate();
