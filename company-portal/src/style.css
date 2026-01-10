@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Nano Banana Theme - Yellow & Black */
+        /* Deep Matte Black Background */
+        --background: 222 47% 6%;
+        /* #0a0e17 Darker than midnight */
+        --foreground: 210 40% 98%;
+        /* White text */
+
+        --card: 222 47% 8%;
+        /* Slightly lighter black */
+        --card-foreground: 210 40% 98%;
+
+        --popover: 222 47% 8%;
+        --popover-foreground: 210 40% 98%;
+
+        /* Banana Yellow Primary */
+        --primary: 48 100% 50%;
+        /* #FFD700 Gold/Yellow */
+        --primary-foreground: 222 47% 11%;
+        /* Dark text on yellow */
+
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222 47% 11%;
+
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 20% 65%;
+
+        --accent: 48 100% 50%;
+        --accent-foreground: 222 47% 11%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+
+        --border: 217 33% 20%;
+        --input: 217 33% 17%;
+        --ring: 48 100% 50%;
+        /* Yellow Ring */
+
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        /* Identical to root since we enforce dark mode aesthetics */
+        --background: 222 47% 6%;
+        --foreground: 210 40% 98%;
+        --card: 222 47% 8%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 47% 8%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 48 100% 50%;
+        --primary-foreground: 222 47% 11%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 217 33% 17%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 20%;
+        --input: 217 33% 17%;
+        --ring: 48 100% 50%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+    }
+
+    /* Yellow Glow Utility */
+    .glow-yellow {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+
+    .text-glow-yellow {
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+}
