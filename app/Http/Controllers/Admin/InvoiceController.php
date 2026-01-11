@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
 use App\Models\CompanyDidInvoice;
 use Illuminate\Http\Request;
 
@@ -15,20 +10,21 @@ class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CompanyDidInvoice::query();
+        $query = CompanyDidInvoice::query()
+            ->with(['companyDid.company', 'companyDid.did']);
 
-        if ($request->filled('status')) {
+        // Optional filters
+        if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        // Support filtering by company?
-        if ($request->filled('company_id')) {
+        if ($request->has('company_id')) {
             $query->whereHas('companyDid', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             });
         }
 
-        $invoices = $query->with(['companyDid.company', 'companyDid.did'])->latest()->paginate(20);
+        $invoices = $query->latest()->paginate(50);
 
         return response()->json($invoices);
     }

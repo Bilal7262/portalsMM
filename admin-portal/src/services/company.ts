@@ -1,11 +1,12 @@
 import { apiService } from './api'
+import type { PaginatedResponse } from '@/types/api'
 
 export interface Company {
     id: number
-    name: string
+    business_name: string
     email: string
-    phone?: string
-    status: 'active' | 'inactive' | 'suspended'
+    phone: string
+    status: 'active' | 'inactive' | 'pending' | 'suspended'
     balance?: number
     created_at?: string
     users_count?: number
@@ -13,15 +14,16 @@ export interface Company {
 }
 
 export interface CompanyFormData {
-    name: string
+    business_name: string
     email: string
-    phone?: string
-    status?: string
+    phone: string
+    status: string
+    password?: string
 }
 
 export const companyService = {
     async getCompanies(params?: any) {
-        return apiService.get<{ data: Company[]; meta: any }>('/admin/companies', { params })
+        return apiService.get<PaginatedResponse<Company>>('/admin/companies', { params })
     },
 
     async getCompany(id: number) {

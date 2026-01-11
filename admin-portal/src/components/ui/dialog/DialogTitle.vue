@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type HTMLAttributes, computed } from 'vue'
-import { DialogTitle, type DialogTitleProps, useForwardProps } from 'radix-vue'
+import { DialogTitle as RadixDialogTitle, type DialogTitleProps, useForwardProps } from 'radix-vue'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<DialogTitleProps & { class?: HTMLAttributes['class'] }>()
@@ -15,12 +15,10 @@ const forwarded = useForwardProps(delegatedProps)
 </script>
 
 <template>
-  <DialogTitle
+  <RadixDialogTitle
     v-bind="forwarded"
-    :class="
-      cn('text-lg font-semibold leading-none tracking-tight', props.class)
-    "
+    :class="cn('text-lg font-semibold leading-none tracking-tight', props.class)"
   >
     <slot />
-  </DialogTitle>
+  </RadixDialogTitle>
 </template>

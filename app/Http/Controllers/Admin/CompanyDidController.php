@@ -9,6 +9,30 @@ use Illuminate\Http\Request;
 
 class CompanyDidController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = CompanyDid::with(['company', 'did']);
+
+        // Optional filters
+        if ($request->has('company_id')) {
+            $query->where('company_id', $request->company_id);
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('search')) {
+            $query->whereHas('did', function ($q) use ($request) {
+                $q->where('did_number', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $assignments = $query->latest()->paginate(50);
+
+        return response()->json($assignments);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

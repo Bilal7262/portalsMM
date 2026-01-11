@@ -1,4 +1,5 @@
 import { apiService } from './api'
+import type { PaginatedResponse } from '@/types/api'
 
 export interface Admin {
     id: number
@@ -10,8 +11,8 @@ export interface Admin {
 }
 
 export const adminService = {
-    getAdmins() {
-        return apiService.get<Admin[]>('/admin/admins')
+    async getAdmins(params?: any) {
+        return apiService.get<PaginatedResponse<Admin>>('/admin/admins', { params })
     },
 
     getAdmin(id: number) {

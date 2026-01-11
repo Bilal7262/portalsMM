@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive } from 'vue'
 import { adminService, type Admin } from '@/services/admin'
 import { apiService } from '@/services/api'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Label from '@/components/ui/label/Label.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 import {
   Table,
   TableBody,
@@ -28,6 +29,19 @@ const isLoading = ref(true)
 const isDialogOpen = ref(false)
 const isSubmitting = ref(false)
 
+const meta = ref({
+  current_page: 1,
+  last_page: 1,
+  from: 1,
+  to: 1,
+  total: 0
+})
+
+const filters = reactive({
+  search: '',
+  status: ''
+})
+
 // Form State
 const formData = ref({
   name: '',
@@ -43,16 +57,36 @@ onMounted(() => {
   fetchRoles()
 })
 
-async function fetchAdmins() {
+async function fetchAdmins(page = 1) {
   isLoading.value = true
   try {
-    const response = await adminService.getAdmins()
-    admins.value = response as any
+    const response = await adminService.getAdmins({
+        page,
+        search: filters.search,
+        status: filters.status
+    })
+    admins.value = response.data
+    meta.value = {
+      current_page: response.current_page,
+      last_page: response.last_page,
+      from: response.from,
+      to: response.to,
+      total: response.total
+    }
   } catch (error) {
     console.error('Failed to fetch admins', error)
   } finally {
     isLoading.value = false
   }
+}
+
+// Simple debounce
+let timeout: any
+const handleSearch = () => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+        fetchAdmins(1)
+    }, 500)
 }
 
 async function fetchRoles() {
@@ -91,7 +125,7 @@ async function handleSubmit() {
       await adminService.createAdmin(formData.value)
     }
     isDialogOpen.value = false
-    await fetchAdmins()
+    await fetchAdmins(meta.value.current_page)
   } catch (error) {
     console.error('Submit failed', error)
   } finally {
@@ -103,7 +137,7 @@ async function handleDelete(id: number) {
   if (!confirm('Are you sure you want to delete this admin?')) return
   try {
     await adminService.deleteAdmin(id)
-    await fetchAdmins()
+    await fetchAdmins(meta.value.current_page)
   } catch (error) {
     console.error('Delete failed', error)
   }
@@ -117,7 +151,40 @@ async function handleDelete(id: number) {
       <Button @click="openAddDialog">Add Team Member</Button>
     </div>
 
-    <div class="rounded-md border bg-card">
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg mb-6 border">
+      <div class="flex-1">
+        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+        <div class="mt-1">
+          <Input
+            v-model="filters.search"
+            type="text"
+            id="search"
+            placeholder="Search by name or email..."
+            @input="handleSearch"
+          />
+        </div>
+      </div>
+      <div class="w-full sm:w-48">
+        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+        <select
+          v-model="filters.status"
+          id="status"
+          class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          @change="fetchAdmins(1)"
+        >
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="rounded-md border bg-card relative overflow-hidden">
+      <div v-if="isLoading" class="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -130,12 +197,8 @@ async function handleDelete(id: number) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-if="isLoading">
-            <TableCell colSpan="6" class="h-24 text-center">Loading...</TableCell>
-          </TableRow>
-          
-          <TableRow v-else-if="admins.length === 0">
-             <TableCell colSpan="6" class="h-24 text-center">No admins found.</TableCell>
+          <TableRow v-if="admins.length === 0 && !isLoading">
+             <TableCell colSpan="6" class="h-24 text-center">No admins found matching your criteria.</TableCell>
           </TableRow>
 
           <TableRow v-for="admin in admins" :key="admin.id">
@@ -163,8 +226,15 @@ async function handleDelete(id: number) {
           </TableRow>
         </TableBody>
       </Table>
+
+      <Pagination 
+        v-if="meta.total > 0"
+        :meta="meta"
+        @page-change="fetchAdmins"
+      />
     </div>
 
+    <!-- Dialog remains the same -->
     <Dialog :open="isDialogOpen" @update:open="isDialogOpen = $event">
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
@@ -227,3 +297,4 @@ async function handleDelete(id: number) {
     </Dialog>
   </div>
 </template>
+

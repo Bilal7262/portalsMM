@@ -13,6 +13,7 @@ use App\Http\Controllers\Company\CompanyUserController;
 use App\Http\Controllers\Company\CompanyDidController;
 use App\Http\Controllers\Company\CompanyInvoiceController;
 use App\Http\Controllers\Company\CompanyCallController;
+use App\Http\Controllers\Company\CompanyActivityLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,7 @@ Route::prefix('admin')->group(function () {
         Route::apiResource('invoices', AdminInvoiceController::class)->only(['index', 'show', 'update']);
 
         // Company DID Assignment
+        Route::get('company-dids', [AdminCompanyDidController::class, 'index']);
         Route::post('company-dids', [AdminCompanyDidController::class, 'store']);
         Route::put('company-dids/{id}', [AdminCompanyDidController::class, 'update']);
         Route::delete('company-dids/{id}', [AdminCompanyDidController::class, 'destroy']);
@@ -60,6 +62,7 @@ Route::prefix('admin')->group(function () {
 Route::prefix('company')->group(function () {
     // Auth Routes
     Route::post('register', [CompanyAuthController::class, 'register']);
+    Route::post('verify-email', [CompanyAuthController::class, 'verifyEmail']);
     Route::post('login', [CompanyAuthController::class, 'login']);
 
     // Protected Routes
@@ -77,11 +80,15 @@ Route::prefix('company')->group(function () {
         // Company Invoices
         Route::get('invoices', [CompanyInvoiceController::class, 'index']);
         Route::get('invoices/{id}', [CompanyInvoiceController::class, 'show']);
+        Route::get('invoices/{id}/download', [CompanyInvoiceController::class, 'download']);
 
         // Company Calls
         Route::get('calls', [CompanyCallController::class, 'index']);
         Route::get('calls/{id}', [CompanyCallController::class, 'show']);
         Route::post('calls/{id}/feedback', [CompanyCallController::class, 'addFeedback']);
+        
+        // Company Activity Logs
+        Route::get('activity-logs', [CompanyActivityLogController::class, 'index']);
     });
 });
 

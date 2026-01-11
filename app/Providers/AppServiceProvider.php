@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
+use App\Models\Call;
+use App\Observers\CallObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Fix for older MySQL versions
+        Schema::defaultStringLength(191);
+        
+        // Register observers
+        Call::observe(CallObserver::class);
     }
 }

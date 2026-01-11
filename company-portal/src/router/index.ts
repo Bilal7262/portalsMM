@@ -28,6 +28,26 @@ const router = createRouter({
             name: 'dashboard',
             component: Dashboard
         },
+        {
+            path: '/users',
+            name: 'users',
+            component: () => import('../views/Users.vue')
+        },
+        {
+            path: '/invoices',
+            name: 'invoices',
+            component: () => import('../views/Invoices.vue')
+        },
+        {
+            path: '/calls',
+            name: 'calls',
+            component: () => import('../views/Calls.vue')
+        },
+        {
+            path: '/activity-logs',
+            name: 'activity-logs',
+            component: () => import('../views/ActivityLogs.vue')
+        },
         // Marketing/Landing page or Auth will go here later
     ]
 })

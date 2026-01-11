@@ -1,4 +1,5 @@
 import { apiService } from './api'
+import type { PaginatedResponse } from '@/types/api'
 
 export interface Invoice {
     id: number
@@ -21,7 +22,7 @@ export interface Invoice {
 
 export const invoiceService = {
     async getInvoices(params?: any) {
-        return apiService.get<{ data: Invoice[]; meta: any }>('/admin/invoices', { params })
+        return apiService.get<PaginatedResponse<Invoice>>('/admin/invoices', { params })
     },
 
     async getInvoice(id: number) {

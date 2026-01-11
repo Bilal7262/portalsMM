@@ -7,7 +7,7 @@ export interface Call {
     invoice?: {
         company_did?: {
             company?: {
-                name: string
+                business_name: string
             }
             did?: {
                 did_number: string

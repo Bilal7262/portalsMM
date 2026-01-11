@@ -47,11 +47,32 @@ class AuthController extends Controller
         }
 
         // TODO: Send OTP to email
+        // For now, logging it or assuming '123456'
+        \Illuminate\Support\Facades\Log::info("OTP for {$company->email}: 123456");
 
         return response()->json([
             'message' => 'Company registered successfully. Please verify your email.',
             'company' => $company,
         ], 201);
+    }
+
+    public function verifyEmail(Request $request) {
+        $request->validate([
+            'email' => 'required|email|exists:companies,email',
+            'otp' => 'required'
+        ]);
+
+        // Stub verification
+        if ($request->otp !== '123456') {
+             throw ValidationException::withMessages([
+                'otp' => ['Invalid OTP'],
+            ]);
+        }
+
+        $company = Company::where('email', $request->email)->first();
+        $company->update(['verify_email' => true]);
+
+        return response()->json(['message' => 'Email verified successfully.']);
     }
 
     public function login(Request $request)

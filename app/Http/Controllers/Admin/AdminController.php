@@ -19,10 +19,22 @@ class AdminController extends Controller
         return response()->json($roles);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $admins = Admin::with('roles')->get();
-        return response()->json($admins);
+        $query = Admin::with('roles');
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return response()->json($query->latest()->paginate(20));
     }
 
     public function store(Request $request)

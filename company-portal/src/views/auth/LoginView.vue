@@ -1,25 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Phone } from 'lucide-vue-next'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
+const error = ref('')
 
 async function handleLogin(e: Event) {
   e.preventDefault()
   loading.value = true
+  error.value = ''
   
-  // Simulate API call
-  setTimeout(() => {
-    loading.value = false
+  try {
+    await authStore.login({
+        email: email.value,
+        password: password.value
+    })
     router.push('/dashboard')
-  }, 1000)
+  } catch (err: any) {
+    error.value = err.response?.data?.message || 'Login failed. Please check credentials.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -38,6 +48,12 @@ async function handleLogin(e: Event) {
         <CardTitle class="text-2xl font-bold tracking-tight text-foreground">Welcome Back</CardTitle>
         <p class="text-sm text-muted-foreground">Sign in to your Nano Banana account</p>
       </CardHeader>
+
+      <div v-if="error" class="px-6 mb-2">
+        <div class="bg-destructive/15 text-destructive text-sm p-3 rounded-md text-center">
+            {{ error }}
+        </div>
+      </div>
       
       <CardContent>
         <form @submit="handleLogin" class="space-y-4">

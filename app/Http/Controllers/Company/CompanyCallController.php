@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Call;
 use Illuminate\Http\Request;
+use App\Models\CompanyActivityLog;
 
 class CompanyCallController extends Controller
 {
@@ -50,6 +51,13 @@ class CompanyCallController extends Controller
         $call->update([
             'company_rating' => $request->company_rating,
             'company_feedback' => $request->company_feedback,
+        ]);
+
+        CompanyActivityLog::create([
+            'company_id' => $companyId,
+            'company_user_id' => $request->user()->id,
+            'activity_type' => 'CALL_FEEDBACK',
+            'activity_details' => "Rated call {$call->id} with {$request->company_rating} stars.",
         ]);
 
         return response()->json(['message' => 'Feedback submitted successfully', 'call' => $call]);

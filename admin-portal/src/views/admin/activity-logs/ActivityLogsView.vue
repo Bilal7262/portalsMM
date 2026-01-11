@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive } from 'vue'
 import { logService, type ActivityLog } from '@/services/log'
 import {
   Table,
@@ -10,13 +10,22 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import Button from '@/components/ui/button/Button.vue'
+import Input from '@/components/ui/input/Input.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 
 const logs = ref<ActivityLog[]>([])
 const isLoading = ref(true)
-const pagination = ref({
+const meta = ref({
   current_page: 1,
   last_page: 1,
+  from: 1,
+  to: 1,
   total: 0
+})
+
+const filters = reactive({
+  type: '',
+  admin_id: ''
 })
 
 onMounted(() => {
@@ -26,11 +35,17 @@ onMounted(() => {
 async function fetchLogs(page = 1) {
   isLoading.value = true
   try {
-    const response = await logService.getLogs({ page, per_page: 10 })
+    const response = await logService.getLogs({ 
+        page, 
+        type: filters.type,
+        admin_id: filters.admin_id 
+    })
     logs.value = response.data
-    pagination.value = {
+    meta.value = {
       current_page: response.current_page,
       last_page: response.last_page,
+      from: response.from,
+      to: response.to,
       total: response.total
     }
   } catch (error) {
@@ -51,7 +66,37 @@ function formatDate(dateString: string) {
       <h1 class="text-3xl font-bold tracking-tight">Activity Logs</h1>
     </div>
 
-    <div class="rounded-md border bg-card">
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg mb-6 border">
+      <div class="flex-1">
+        <label for="type" class="block text-sm font-medium text-gray-700">Activity Type</label>
+        <div class="mt-1">
+          <Input
+            v-model="filters.type"
+            type="text"
+            id="type"
+            placeholder="Search by type (e.g. login, create_did)..."
+            @input="fetchLogs(1)"
+          />
+        </div>
+      </div>
+      <div class="w-full sm:w-48">
+        <label for="admin_id" class="block text-sm font-medium text-gray-700">Admin ID</label>
+        <Input
+          v-model="filters.admin_id"
+          type="text"
+          id="admin_id"
+          placeholder="Filter by Admin ID"
+          @input="fetchLogs(1)"
+        />
+      </div>
+    </div>
+
+    <div class="rounded-md border bg-card relative overflow-hidden">
+      <div v-if="isLoading" class="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -63,12 +108,8 @@ function formatDate(dateString: string) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-if="isLoading">
-            <TableCell colSpan="5" class="h-24 text-center">Loading...</TableCell>
-          </TableRow>
-          
-          <TableRow v-else-if="logs.length === 0">
-             <TableCell colSpan="5" class="h-24 text-center">No logs found.</TableCell>
+          <TableRow v-if="logs.length === 0 && !isLoading">
+             <TableCell colSpan="5" class="h-24 text-center">No logs found matching your criteria.</TableCell>
           </TableRow>
 
           <TableRow v-for="log in logs" :key="log.id">
@@ -77,7 +118,7 @@ function formatDate(dateString: string) {
               {{ log.admin ? log.admin.name : 'System' }}
             </TableCell>
             <TableCell>
-               <span class="capitalize px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs font-medium">
+               <span class="capitalize px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs font-medium border">
                  {{ log.activity_type.replace(/_/g, ' ') }}
                </span>
             </TableCell>
@@ -88,28 +129,13 @@ function formatDate(dateString: string) {
           </TableRow>
         </TableBody>
       </Table>
-    </div>
 
-    <div class="flex items-center justify-end space-x-2 py-4">
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="pagination.current_page <= 1 || isLoading"
-        @click="fetchLogs(pagination.current_page - 1)"
-      >
-        Previous
-      </Button>
-      <div class="text-sm font-medium">
-        Page {{ pagination.current_page }} of {{ pagination.last_page }}
-      </div>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="pagination.current_page >= pagination.last_page || isLoading"
-        @click="fetchLogs(pagination.current_page + 1)"
-      >
-        Next
-      </Button>
+      <Pagination 
+        v-if="meta.total > 0"
+        :meta="meta"
+        @page-change="fetchLogs"
+      />
     </div>
   </div>
 </template>
+

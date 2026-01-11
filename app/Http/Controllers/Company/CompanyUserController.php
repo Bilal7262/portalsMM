@@ -8,6 +8,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Models\CompanyActivityLog;
 
 class CompanyUserController extends Controller
 {
@@ -45,6 +46,13 @@ class CompanyUserController extends Controller
             $user->addRole($role);
         }
 
+        CompanyActivityLog::create([
+            'company_id' => $companyId,
+            'company_user_id' => $request->user()->id,
+            'activity_type' => 'USER_CREATED',
+            'activity_details' => "Created user: {$user->email} with role: {$request->role}",
+        ]);
+
         return response()->json([
             'message' => 'User created successfully',
             'user' => $user->load('roles')
@@ -81,6 +89,13 @@ class CompanyUserController extends Controller
             $user->syncRoles(['company-' . $request->role]);
         }
 
+        CompanyActivityLog::create([
+            'company_id' => $companyId,
+            'company_user_id' => $request->user()->id,
+            'activity_type' => 'USER_UPDATED',
+            'activity_details' => "Updated user: {$user->email}",
+        ]);
+
         return response()->json([
             'message' => 'User updated successfully',
             'user' => $user->load('roles')
@@ -98,6 +113,13 @@ class CompanyUserController extends Controller
         }
 
         $user->delete();
+
+        CompanyActivityLog::create([
+            'company_id' => $companyId,
+            'company_user_id' => $request->user()->id,
+            'activity_type' => 'USER_DELETED',
+            'activity_details' => "Deleted user: {$user->email}",
+        ]);
 
         return response()->json(['message' => 'User deleted successfully']);
     }

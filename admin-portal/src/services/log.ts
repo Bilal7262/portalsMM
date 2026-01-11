@@ -1,4 +1,5 @@
 import { apiService } from './api'
+import type { PaginatedResponse } from '@/types/api'
 
 export interface ActivityLog {
     id: number
@@ -9,15 +10,9 @@ export interface ActivityLog {
     admin?: { id: number; name: string }
 }
 
-export interface PaginatedLogs {
-    data: ActivityLog[]
-    current_page: number
-    last_page: number
-    total: number
-}
-
 export const logService = {
-    getLogs(params?: any) {
-        return apiService.get<PaginatedLogs>('/admin/activity-logs', { params })
+    async getLogs(params?: any) {
+        return apiService.get<PaginatedResponse<ActivityLog>>('/admin/activity-logs', { params })
     }
 }
+

@@ -28,17 +28,22 @@ const router = createRouter({
         {
           path: 'companies',
           name: 'companies',
-          component: () => import('../views/admin/companies/CompanyListView.vue'),
+          component: () => import('../views/admin/companies/CompaniesView.vue'),
         },
         {
           path: 'dids',
           name: 'dids',
-          component: () => import('../views/admin/dids/DidListView.vue'),
+          component: () => import('../views/admin/dids/DidsView.vue'),
+        },
+        {
+          path: 'company-dids',
+          name: 'company-dids',
+          component: () => import('../views/admin/company-dids/CompanyDidsView.vue'),
         },
         {
           path: 'invoices',
           name: 'invoices',
-          component: () => import('../views/admin/invoices/InvoiceListView.vue'),
+          component: () => import('../views/admin/invoices/InvoicesView.vue'),
         },
         {
           path: 'reports',

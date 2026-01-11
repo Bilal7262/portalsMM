@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -41,13 +36,27 @@ class CompanyController extends Controller
             'email' => 'required|email|unique:companies',
             'phone' => 'required|string|unique:companies',
             'status' => 'required|in:active,inactive,pending,suspended',
+            'password' => 'required|string|min:8',
         ]);
 
-        $company = Company::create($request->all());
+        $company = Company::create([
+            'business_name' => $request->business_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'status' => $request->status,
+        ]);
+
+        // Create initial admin user for company
+        $company->users()->create([
+            'name' => 'Admin',
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin',
+        ]);
 
         return response()->json([
-            'message' => 'Company created successfully',
-            'company' => $company
+            'message' => 'Company and admin user created successfully',
+            'company' => $company->load('users')
         ], 201);
     }
 

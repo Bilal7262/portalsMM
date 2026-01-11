@@ -1,9 +1,10 @@
 import { apiService } from './api'
+import type { PaginatedResponse } from '@/types/api'
 
 export interface DID {
     id: number
     did_number: string
-    status: 'available' | 'assigned'
+    status: 'available' | 'assigned' | 'maintenance'
     company_did?: {
         company_id: number
         company: {
@@ -16,7 +17,7 @@ export interface DID {
 
 export interface DidFormData {
     did_number: string
-    status: 'available' | 'assigned'
+    status: 'available' | 'assigned' | 'maintenance'
 }
 
 export interface AssignDidData {
@@ -28,7 +29,11 @@ export interface AssignDidData {
 
 export const didService = {
     async getDids(params?: any) {
-        return apiService.get<{ data: DID[]; meta: any }>('/admin/dids', { params })
+        return apiService.get<PaginatedResponse<DID>>('/admin/dids', { params })
+    },
+
+    async getCompanyDids(params?: any) {
+        return apiService.get<PaginatedResponse<any>>('/admin/company-dids', { params })
     },
 
     async createDid(data: DidFormData) {
