@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-namespace App\Http\Controllers\Company;
-
-use App\Http\Controllers\Controller;
 use App\Models\Call;
 use Illuminate\Http\Request;
 use App\Models\CompanyActivityLog;
@@ -36,7 +31,7 @@ class CompanyCallController extends Controller
         return response()->json($call);
     }
 
-    public function feedback(Request $request, $id)
+    public function addFeedback(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
         $call = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
@@ -44,7 +39,7 @@ class CompanyCallController extends Controller
         })->where('id', $id)->firstOrFail();
 
         $request->validate([
-            'company_rating' => 'required|integer|min:1|max:5',
+            'company_rating' => 'required|integer|min:1|max:10',
             'company_feedback' => 'nullable|string',
         ]);
 

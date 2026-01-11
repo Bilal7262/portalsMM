@@ -48,6 +48,11 @@ const router = createRouter({
             name: 'activity-logs',
             component: () => import('../views/ActivityLogs.vue')
         },
+        {
+            path: '/invoices/:id/calls',
+            name: 'invoice-calls',
+            component: () => import('../views/InvoiceCalls.vue')
+        },
         // Marketing/Landing page or Auth will go here later
     ]
 })

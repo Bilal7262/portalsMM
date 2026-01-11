@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/lib/axios'
 import { 
   Download, 
   Search,
-  FileText
+  Filter,
+  FileText,
+  Eye
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 
+const router = useRouter()
 const invoices = ref<any[]>([])
 const loading = ref(false)
 
@@ -17,20 +21,27 @@ const fetchInvoices = async () => {
     loading.value = true
     try {
         const response = await api.get('/company/invoices')
-        invoices.value = response.data.map((inv: any) => ({
-             id: `INV-${inv.id}`,
-             period: new Date(inv.effective_from).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-             date: new Date(inv.created_at).toLocaleDateString(),
-             dueDate: new Date(inv.effective_to).toLocaleDateString(), // Approx
-             minutes: inv.total_minutes_consumption,
-             amount: inv.billed_amount,
-             status: inv.status
+        const dataArray = Array.isArray(response.data) ? response.data : (response.data.data || [])
+        
+        invoices.value = dataArray.map((inv: any) => ({
+             id: inv.id,
+             displayId: `INV-${inv.id}`,
+             period: inv.effective_from ? new Date(inv.effective_from).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A',
+             date: inv.created_at ? new Date(inv.created_at).toLocaleDateString() : 'N/A',
+             dueDate: inv.effective_to ? new Date(inv.effective_to).toLocaleDateString() : 'N/A',
+             minutes: inv.total_minutes_consumption || 0,
+             amount: inv.billed_amount ? parseFloat(inv.billed_amount) : 0,
+             status: inv.status || 'Unknown'
         }))
     } catch (e) {
         console.error("Failed to fetch invoices", e)
     } finally {
         loading.value = false
     }
+}
+
+const viewDetails = (invoice: any) => {
+    router.push(`/invoices/${invoice.id}/calls`)
 }
 
 const getStatusColor = (status: string) => {
@@ -42,9 +53,9 @@ const getStatusColor = (status: string) => {
   }
 }
 
-const downloadInvoice = async (invoiceId: string) => {
+const downloadInvoice = async (invoiceId: string | number) => {
     try {
-        const id = invoiceId.replace('INV-', '');
+        const id = invoiceId.toString().replace('INV-', '');
         const response = await api.get(`/company/invoices/${id}/download`, {
             responseType: 'blob'
         });
@@ -79,8 +90,6 @@ onMounted(() => {
         Export Report
       </Button>
     </div>
-
-    <!-- Stats Cards could be here -->
 
     <!-- Filters -->
     <div class="flex gap-4 items-center bg-card p-4 rounded-xl border border-border shadow-sm">
@@ -119,7 +128,7 @@ onMounted(() => {
                   <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                     <FileText class="w-4 h-4" />
                   </div>
-                  <span class="font-medium text-foreground">{{ invoice.id }}</span>
+                  <span class="font-medium text-foreground">{{ invoice.displayId }}</span>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">{{ invoice.period }}</td>
@@ -133,8 +142,11 @@ onMounted(() => {
                   {{ invoice.status }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right">
-                <Button variant="ghost" size="sm" @click="downloadInvoice(invoice.id)">
+              <td class="px-6 py-4 whitespace-nowrap text-right flex items-center justify-end gap-2">
+                <Button variant="ghost" size="sm" @click="viewDetails(invoice)" title="View Details">
+                  <Eye class="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" @click="downloadInvoice(invoice.id)" title="Download CSV">
                   <Download class="w-4 h-4" />
                 </Button>
               </td>

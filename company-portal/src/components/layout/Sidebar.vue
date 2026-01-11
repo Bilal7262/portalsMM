@@ -18,7 +18,6 @@ const navigation = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Team Members', path: '/users', icon: Users },
   { name: 'Invoices', path: '/invoices', icon: FileText },
-  { name: 'Call History', path: '/calls', icon: Phone },
   { name: 'Activity Logs', path: '/activity-logs', icon: Activity },
   { name: 'Settings', path: '/settings', icon: Settings },
 ]

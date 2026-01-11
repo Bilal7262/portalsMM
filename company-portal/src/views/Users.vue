@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api from '@/lib/axios'
 import { 
   Plus, 
@@ -294,9 +294,6 @@ onMounted(() => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
-  </div>
-</template>
 
   </div>
 </template>
