@@ -31,9 +31,14 @@ class Company extends Model
         return $this->hasMany(CompanyUser::class);
     }
 
-    public function dids()
+    public function agents()
     {
-        return $this->hasMany(CompanyDid::class);
+        return $this->hasMany(CompanyAgent::class);
+    }
+
+    public function agentInvoices()
+    {
+        return $this->hasMany(CompanyAgentInvoice::class);
     }
 
     public function activityLogs()

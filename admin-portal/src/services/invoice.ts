@@ -3,20 +3,16 @@ import type { PaginatedResponse } from '@/types/api'
 
 export interface Invoice {
     id: number
-    company_did_id: number
-    company_did?: {
-        did: {
-            did_number: string
-        }
-        company: {
-            name: string
-        }
+    invoice_number: string
+    company_id: number
+    company?: {
+        id: number
+        business_name: string
     }
     effective_from: string
     effective_to: string
-    total_minutes_consumption: number
-    billed_amount: number
-    status: 'draft' | 'paid' | 'overdue' | 'cancelled'
+    total_amount: number
+    status: 'draft' | 'generated' | 'sent' | 'paid' | 'overdue' | 'cancelled'
     created_at: string
 }
 

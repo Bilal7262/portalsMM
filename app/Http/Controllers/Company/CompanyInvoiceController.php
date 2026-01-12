@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
-use App\Models\CompanyDidInvoice;
+use App\Models\CompanyAgentInvoice;
+use App\Models\Call;
 use Illuminate\Http\Request;
 
 class CompanyInvoiceController extends Controller
@@ -12,9 +13,8 @@ class CompanyInvoiceController extends Controller
     {
         $companyId = $request->user()->company_id;
 
-        $query = CompanyDidInvoice::whereHas('companyDid', function ($q) use ($companyId) {
-            $q->where('company_id', $companyId);
-        })->with('companyDid.did');
+        $query = CompanyAgentInvoice::where('company_id', $companyId)
+            ->with(['items.agent.did']);
 
         // Filter by Status
         if ($request->filled('status')) {
@@ -23,20 +23,16 @@ class CompanyInvoiceController extends Controller
             $query->where('status', '!=', 'Draft');
         }
 
-        // Search by Invoice ID or Amount?
+        // Search by Invoice Number
         if ($request->filled('search_query')) {
             $search = $request->search_query;
-            // Assuming search is for ID for now, stripping 'INV-' if present
-            $searchId = str_replace('INV-', '', $search);
-            if (is_numeric($searchId)) {
-                $query->where('id', 'like', "%{$searchId}%");
-            }
+            $query->where('invoice_number', 'like', "%{$search}%");
         }
 
         // Sorting
         $sortField = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
-        $allowedSorts = ['id', 'effective_from', 'created_at', 'total_minutes_consumption', 'billed_amount', 'status'];
+        $allowedSorts = ['id', 'invoice_number', 'effective_from', 'created_at', 'total_amount', 'status'];
 
         if (in_array($sortField, $allowedSorts)) {
             $query->orderBy($sortField, $sortOrder);
@@ -52,9 +48,10 @@ class CompanyInvoiceController extends Controller
     public function show(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
-        $invoice = CompanyDidInvoice::whereHas('companyDid', function ($query) use ($companyId) {
-            $query->where('company_id', $companyId);
-        })->where('id', $id)->with(['companyDid.did', 'calls'])->firstOrFail();
+        $invoice = CompanyAgentInvoice::where('company_id', $companyId)
+            ->where('id', $id)
+            ->with(['items.agent.did'])
+            ->firstOrFail();
 
         return response()->json($invoice);
     }
@@ -62,57 +59,77 @@ class CompanyInvoiceController extends Controller
     public function download(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
-        $invoice = CompanyDidInvoice::whereHas('companyDid', function ($query) use ($companyId) {
-            $query->where('company_id', $companyId);
-        })->where('id', $id)->with(['companyDid.did', 'calls'])->firstOrFail();
+        $invoice = CompanyAgentInvoice::where('company_id', $companyId)
+            ->where('id', $id)
+            ->with(['items.agent.did', 'items.calls'])
+            ->firstOrFail();
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"invoice_{$invoice->id}.csv\"",
+            'Content-Disposition' => "attachment; filename=\"invoice_{$invoice->invoice_number}.csv\"",
         ];
 
         $callback = function () use ($invoice) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Invoice ID', $invoice->id]);
-            fputcsv($file, ['DID Number', $invoice->companyDid->did->did_number]);
+            fputcsv($file, ['Invoice Number', $invoice->invoice_number]);
             fputcsv($file, ['Billing Period', $invoice->effective_from . ' to ' . $invoice->effective_to]);
-            fputcsv($file, ['Total Minutes', $invoice->total_minutes_consumption]);
-            fputcsv($file, ['Billed Amount', '$' . number_format($invoice->billed_amount, 2)]);
+            fputcsv($file, ['Total Amount', '$' . number_format($invoice->total_amount, 2)]);
             fputcsv($file, []);
-            fputcsv($file, ['Call ID', 'Date', 'User Phone', 'Duration (Sec)', 'Disposition']);
-
-            foreach ($invoice->calls as $call) {
+            
+            // Itemized Agent Summary
+            fputcsv($file, ['Agent Summary']);
+            fputcsv($file, ['Agent', 'DID', 'Minutes', 'Rate', 'Subtotal']);
+            foreach ($invoice->items as $item) {
                 fputcsv($file, [
-                    $call->id,
-                    $call->created_at,
-                    $call->user_phone,
-                    $call->duration,
-                    $call->disposition
+                    $item->agent->name,
+                    $item->agent->did->did_number ?? 'N/A',
+                    $item->total_minutes,
+                    '$' . $item->rate_per_min,
+                    '$' . $item->subtotal
                 ]);
+            }
+            
+            fputcsv($file, []);
+            fputcsv($file, ['Call Details']);
+            fputcsv($file, ['Agent', 'Date', 'User Phone', 'Duration (Sec)', 'Disposition']);
+
+            foreach ($invoice->items as $item) {
+                foreach ($item->calls as $call) {
+                    fputcsv($file, [
+                        $item->agent->name,
+                        $call->created_at,
+                        $call->user_phone,
+                        $call->duration,
+                        $call->disposition
+                    ]);
+                }
             }
             fclose($file);
         };
 
         return response()->stream($callback, 200, $headers);
     }
+
     public function getInvoiceCalls(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
 
-        // ensure invoice exists and belongs to company
-        $invoice = CompanyDidInvoice::whereHas('companyDid', function ($query) use ($companyId) {
-            $query->where('company_id', $companyId);
-        })->where('id', $id)->firstOrFail();
+        // Ensure invoice exists and belongs to company
+        $invoice = CompanyAgentInvoice::where('company_id', $companyId)
+            ->where('id', $id)
+            ->firstOrFail();
 
-        $query = \App\Models\Call::where('company_did_invoice_id', $id)
-            ->with(['invoice.companyDid.did']);
+        // Query calls through invoice items
+        $query = Call::whereHas('invoiceItem', function($q) use ($id) {
+            $q->where('company_agent_invoice_id', $id);
+        })->with(['invoiceItem.agent.did']);
 
         // Apply Filters
         if ($request->filled('search_query')) {
             $search = $request->search_query;
             $query->where(function ($q) use ($search) {
                 $q->where('user_phone', 'like', "%{$search}%")
-                    ->orWhereHas('invoice.companyDid.did', function ($subQ) use ($search) {
+                    ->orWhereHas('invoiceItem.agent.did', function ($subQ) use ($search) {
                         $subQ->where('did_number', 'like', "%{$search}%");
                     });
             });

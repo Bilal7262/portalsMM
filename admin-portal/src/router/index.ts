@@ -36,14 +36,19 @@ const router = createRouter({
           component: () => import('../views/admin/dids/DidsView.vue'),
         },
         {
-          path: 'company-dids',
-          name: 'company-dids',
-          component: () => import('../views/admin/company-dids/CompanyDidsView.vue'),
+          path: 'company-agents',
+          name: 'company-agents',
+          component: () => import('../views/admin/company-agents/CompanyAgentsView.vue'),
         },
         {
           path: 'invoices',
           name: 'invoices',
           component: () => import('../views/admin/invoices/InvoicesView.vue'),
+        },
+        {
+          path: 'voices',
+          name: 'voices',
+          component: () => import('../views/admin/voices/VoicesView.vue'),
         },
         {
           path: 'reports',

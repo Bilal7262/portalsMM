@@ -118,11 +118,10 @@
     </div>
 
     <!-- Assign DID Modal -->
-    <AssignDidModal 
-      :open="isAssignModalOpen"
+    <AssignDidToAgentModal 
+      v-model:open="isAssignModalOpen"
       :company="selectedCompany"
-      @close="isAssignModalOpen = false"
-      @assigned="handleAssigned"
+      @saved="handleAssigned"
     />
 
     <CompanyModal 
@@ -140,7 +139,7 @@ import { Plus } from 'lucide-vue-next'
 const PlusIcon = Plus
 import { companyService } from '@/services/company'
 import Pagination from '@/components/ui/Pagination.vue'
-import AssignDidModal from '@/components/modals/AssignDidModal.vue'
+import AssignDidToAgentModal from '@/components/modals/AssignDidToAgentModal.vue'
 import CompanyModal from '@/components/modals/CompanyModal.vue'
 
 const companies = ref<any[]>([])

@@ -13,7 +13,7 @@ class CompanyCallController extends Controller
     {
         $companyId = $request->user()->company_id;
 
-        $query = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+        $query = Call::whereHas('invoiceItem.agent', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
         });
 
@@ -34,11 +34,11 @@ class CompanyCallController extends Controller
         $now = now();
 
         // Base query for company calls
-        $query = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+        $query = Call::whereHas('invoiceItem.agent', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
         })->whereMonth('created_at', $now->month)
             ->whereYear('created_at', $now->year)
-            ->with(['invoice.companyDid.did']);
+            ->with(['invoiceItem.agent.did']);
 
         // Calculate stats (before filtering to show total for month)
         // Optimization: Cache or aggregate separately if slow
@@ -52,7 +52,7 @@ class CompanyCallController extends Controller
             $search = $request->search_query;
             $query->where(function ($q) use ($search) {
                 $q->where('user_phone', 'like', "%{$search}%")
-                    ->orWhereHas('invoice.companyDid.did', function ($subQ) use ($search) {
+                    ->orWhereHas('invoiceItem.agent.did', function ($subQ) use ($search) {
                         $subQ->where('did_number', 'like', "%{$search}%");
                     });
             });
@@ -86,9 +86,9 @@ class CompanyCallController extends Controller
     public function show(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
-        $call = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+        $call = Call::whereHas('invoiceItem.agent', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
-        })->where('id', $id)->firstOrFail();
+        })->with('messages')->where('id', $id)->firstOrFail();
 
         return response()->json($call);
     }
@@ -96,7 +96,7 @@ class CompanyCallController extends Controller
     public function addFeedback(Request $request, $id)
     {
         $companyId = $request->user()->company_id;
-        $call = Call::whereHas('invoice.companyDid', function ($query) use ($companyId) {
+        $call = Call::whereHas('invoiceItem.agent', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
         })->where('id', $id)->firstOrFail();
 

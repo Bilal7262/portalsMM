@@ -58,6 +58,11 @@ const router = createRouter({
             name: 'invoice-calls',
             component: () => import('../views/InvoiceCalls.vue')
         },
+        {
+            path: '/agents',
+            name: 'agents',
+            component: () => import('../views/Agents.vue')
+        },
         // Marketing/Landing page or Auth will go here later
     ]
 })

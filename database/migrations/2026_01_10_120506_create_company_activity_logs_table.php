@@ -19,6 +19,11 @@ return new class extends Migration {
             $table->timestamp('activity_date')->useCurrent();
             $table->softDeletes();
             $table->timestamps();
+
+            // Indexes for better performance
+            $table->index('company_id');
+            $table->index('created_at');
+            $table->index(['company_id', 'created_at']);
         });
     }
 

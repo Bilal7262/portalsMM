@@ -7,7 +7,8 @@ import {
   Settings, 
   LogOut,
   FileText,
-  Activity
+  Activity,
+  Bot
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 
@@ -16,6 +17,7 @@ const router = useRouter()
 
 const navigation = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { name: 'My Agents', path: '/agents', icon: Bot },
   { name: 'Team Members', path: '/users', icon: Users },
   { name: 'Invoices', path: '/invoices', icon: FileText },
   { name: 'Call History', path: '/call-history', icon: Phone },

@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('calls', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_did_invoice_id')->nullable()->constrained('company_did_invoices')->onDelete('set null');
+            $table->foreignId('company_agent_invoice_item_id')->nullable()->constrained('company_agent_invoice_items')->onDelete('set null');
             $table->string('session_id')->nullable()->index();
             $table->string('user_phone')->nullable()->index(); // Consider privacy
             $table->string('call_audio_url')->nullable();
@@ -38,6 +38,10 @@ return new class extends Migration {
             $table->decimal('company_rating', 3, 1)->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            // Indexes for better performance
+            $table->index('company_agent_invoice_item_id');
+            $table->index('created_at');
         });
     }
 

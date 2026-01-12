@@ -16,6 +16,10 @@ return new class extends Migration {
             $table->string('status')->default('available'); // available, assigned, maintenance
             $table->softDeletes();
             $table->timestamps();
+
+            // Indexes for better performance
+            $table->index('status');
+            $table->index('did_number');
         });
     }
 

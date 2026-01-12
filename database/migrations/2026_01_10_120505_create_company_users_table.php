@@ -19,6 +19,10 @@ return new class extends Migration {
             $table->string('status')->default('active'); // active, inactive
             $table->softDeletes();
             $table->timestamps();
+
+            // Indexes for better performance
+            $table->index('company_id');
+            $table->index('status');
         });
     }
 

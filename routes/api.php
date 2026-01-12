@@ -36,11 +36,12 @@ Route::prefix('admin')->group(function () {
         Route::apiResource('dids', AdminDidController::class);
         Route::apiResource('invoices', AdminInvoiceController::class)->only(['index', 'show', 'update']);
 
-        // Company DID Assignment
-        Route::get('company-dids', [AdminCompanyDidController::class, 'index']);
-        Route::post('company-dids', [AdminCompanyDidController::class, 'store']);
-        Route::put('company-dids/{id}', [AdminCompanyDidController::class, 'update']);
-        Route::delete('company-dids/{id}', [AdminCompanyDidController::class, 'destroy']);
+        // Admin Voices
+        Route::apiResource('voices', \App\Http\Controllers\Admin\AdminVoiceController::class);
+
+        // Company Agent Management (previously company-dids)
+        Route::post('company-agents/{id}/approve', [\App\Http\Controllers\Admin\CompanyAgentController::class, 'approve']);
+        Route::apiResource('company-agents', \App\Http\Controllers\Admin\CompanyAgentController::class);
 
         // Reports
         Route::get('reports', [\App\Http\Controllers\Admin\ReportController::class, 'index']);
@@ -73,7 +74,11 @@ Route::prefix('company')->group(function () {
         // Company User Management
         Route::apiResource('users', CompanyUserController::class);
 
-        // Company DIDs
+        // Company Agents (AI Agents)
+        Route::get('agents/available-voices', [\App\Http\Controllers\Company\CompanyAgentController::class, 'availableVoices']);
+        Route::apiResource('agents', \App\Http\Controllers\Company\CompanyAgentController::class);
+
+        // Company DIDs (deprecated, use agents)
         Route::get('dids', [CompanyDidController::class, 'index']);
         Route::get('dids/{id}', [CompanyDidController::class, 'show']);
 
@@ -88,6 +93,10 @@ Route::prefix('company')->group(function () {
         Route::get('calls', [CompanyCallController::class, 'index']);
         Route::get('calls/{id}', [CompanyCallController::class, 'show']);
         Route::post('calls/{id}/feedback', [CompanyCallController::class, 'addFeedback']);
+
+        // Call Messages
+        Route::get('calls/{callId}/messages', [\App\Http\Controllers\CallMessageController::class, 'index']);
+        Route::post('calls/{callId}/messages', [\App\Http\Controllers\CallMessageController::class, 'store']);
 
         // Company Activity Logs
         Route::get('activity-logs', [CompanyActivityLogController::class, 'index']);

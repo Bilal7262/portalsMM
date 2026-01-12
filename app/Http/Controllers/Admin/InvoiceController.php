@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CompanyDidInvoice;
+use App\Models\CompanyAgentInvoice;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CompanyDidInvoice::query()
-            ->with(['companyDid.company', 'companyDid.did']);
+        $query = CompanyAgentInvoice::query()
+            ->with(['company', 'items.agent.did']);
 
         // Optional filters
         if ($request->has('status')) {
@@ -19,8 +19,16 @@ class InvoiceController extends Controller
         }
 
         if ($request->has('company_id')) {
-            $query->whereHas('companyDid', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
+            $query->where('company_id', $request->company_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                    ->orWhereHas('company', function ($subQ) use ($search) {
+                        $subQ->where('business_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -31,17 +39,22 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        $invoice = CompanyDidInvoice::with(['companyDid.company', 'companyDid.did', 'calls'])->findOrFail($id);
+        $invoice = CompanyAgentInvoice::with([
+            'company',
+            'items.agent.did',
+            'items.agent.adminVoice',
+            'items.calls'
+        ])->findOrFail($id);
+        
         return response()->json($invoice);
     }
 
     public function update(Request $request, $id)
     {
-        $invoice = CompanyDidInvoice::findOrFail($id);
+        $invoice = CompanyAgentInvoice::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:draft,generated,sent,paid,cancelled',
-            // Maybe handle payment details here
+            'status' => 'required|in:Draft,Finalized,Paid',
         ]);
 
         $invoice->update($request->only('status'));

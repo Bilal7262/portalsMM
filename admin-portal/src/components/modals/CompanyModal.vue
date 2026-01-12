@@ -1,4 +1,5 @@
 <template>
+  <div>
   <Dialog :open="open" @update:open="$emit('close')">
     <DialogContent class="sm:max-w-[500px]">
       <DialogHeader>
@@ -53,6 +54,7 @@
       </DialogFooter>
     </DialogContent>
   </Dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -94,6 +96,16 @@ const formData = ref({
   status: 'active'
 })
 
+const resetForm = () => {
+  formData.value = {
+    business_name: '',
+    email: '',
+    password: '',
+    phone: '',
+    status: 'pending'
+  }
+}
+
 watch(() => props.company, (newVal) => {
   if (newVal) {
     formData.value = {
@@ -107,16 +119,6 @@ watch(() => props.company, (newVal) => {
     resetForm()
   }
 }, { immediate: true })
-
-const resetForm = () => {
-  formData.value = {
-    business_name: '',
-    email: '',
-    password: '',
-    phone: '',
-    status: 'pending'
-  }
-}
 
 const handleSubmit = async () => {
   submitting.value = true
