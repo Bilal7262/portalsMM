@@ -21,11 +21,15 @@ const fetchLogs = async () => {
     loading.value = true
     try {
         const response = await api.get('/company/activity-logs')
-        logs.value = response.data.map((log: any) => ({
+        // The API returns paginated data inside 'data' property
+        const logsData = response.data.data || []
+        
+        logs.value = logsData.map((log: any) => ({
             id: log.id,
             type: log.activity_type,
             details: log.activity_details,
-            user: log.company_user?.name || 'System',
+            // The relationship is named 'user' in the backend response now
+            user: log.user?.name || log.company_user?.name || 'System',
             timestamp: new Date(log.created_at).toLocaleString()
         }))
     } catch (e) {

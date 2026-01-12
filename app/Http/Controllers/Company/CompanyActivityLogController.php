@@ -11,11 +11,11 @@ class CompanyActivityLogController extends Controller
     public function index(Request $request)
     {
         $companyId = $request->user()->company_id;
-        
-        $logs = CompanyActivityLog::where('company_id', $companyId)
-            ->with('companyUser:id,name,email')
+
+        $logs = CompanyActivityLog::with('user')
+            ->where('company_id', $companyId)
             ->latest()
-            ->paginate(50);
+            ->paginate(20);
 
         return response()->json($logs);
     }

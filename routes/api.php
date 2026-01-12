@@ -80,13 +80,15 @@ Route::prefix('company')->group(function () {
         // Company Invoices
         Route::get('invoices', [CompanyInvoiceController::class, 'index']);
         Route::get('invoices/{id}', [CompanyInvoiceController::class, 'show']);
+        Route::get('invoices/{id}/calls', [CompanyInvoiceController::class, 'getInvoiceCalls']);
         Route::get('invoices/{id}/download', [CompanyInvoiceController::class, 'download']);
 
         // Company Calls
+        Route::get('calls/current-month', [CompanyCallController::class, 'currentMonth']);
         Route::get('calls', [CompanyCallController::class, 'index']);
         Route::get('calls/{id}', [CompanyCallController::class, 'show']);
         Route::post('calls/{id}/feedback', [CompanyCallController::class, 'addFeedback']);
-        
+
         // Company Activity Logs
         Route::get('activity-logs', [CompanyActivityLogController::class, 'index']);
     });

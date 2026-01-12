@@ -44,6 +44,11 @@ const router = createRouter({
             component: () => import('../views/Calls.vue')
         },
         {
+            path: '/call-history',
+            name: 'call-history',
+            component: () => import('../views/CallHistory.vue')
+        },
+        {
             path: '/activity-logs',
             name: 'activity-logs',
             component: () => import('../views/ActivityLogs.vue')

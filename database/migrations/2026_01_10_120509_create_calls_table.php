@@ -33,9 +33,9 @@ return new class extends Migration {
             // FAX → Fax machine
             $table->timestamp('scheduled_callback')->nullable();
             $table->text('ai_feedback')->nullable();
-            $table->integer('ai_rating')->nullable();
+            $table->decimal('ai_rating', 3, 1)->nullable();
             $table->text('company_feedback')->nullable();
-            $table->integer('company_rating')->nullable();
+            $table->decimal('company_rating', 3, 1)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

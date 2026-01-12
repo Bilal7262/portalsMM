@@ -14,7 +14,7 @@ import Header from './Header.vue'
 
       <!-- Main Content -->
       <main class="flex-1 overflow-y-auto p-6 bg-background/50">
-        <div class="container mx-auto max-w-7xl animate-in fade-in duration-500">
+        <div class="w-full animate-in fade-in duration-500">
           <slot></slot>
         </div>
       </main>
