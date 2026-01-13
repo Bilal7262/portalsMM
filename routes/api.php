@@ -37,6 +37,7 @@ Route::prefix('admin')->group(function () {
         Route::apiResource('invoices', AdminInvoiceController::class)->only(['index', 'show', 'update']);
 
         // Admin Voices
+        Route::get('voices/{id}/caches', [\App\Http\Controllers\Admin\AdminVoiceController::class, 'getCaches']);
         Route::apiResource('voices', \App\Http\Controllers\Admin\AdminVoiceController::class);
 
         // Company Agent Management (previously company-dids)

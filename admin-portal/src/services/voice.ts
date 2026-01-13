@@ -31,22 +31,26 @@ export interface VoiceFilters {
 
 export const voiceService = {
     getVoices(params?: VoiceFilters) {
-        return apiService.get<any>('/voices', { params })
+        return apiService.get<any>('/admin/voices', { params })
     },
 
     getVoice(id: number) {
-        return apiService.get<AdminVoice>(`/voices/${id}`)
+        return apiService.get<AdminVoice>(`/admin/voices/${id}`)
     },
 
     createVoice(data: Partial<AdminVoice>) {
-        return apiService.post<AdminVoice>('/voices', data)
+        return apiService.post<AdminVoice>('/admin/voices', data)
     },
 
     updateVoice(id: number, data: Partial<AdminVoice>) {
-        return apiService.put<AdminVoice>(`/voices/${id}`, data)
+        return apiService.put<AdminVoice>(`/admin/voices/${id}`, data)
     },
 
     deleteVoice(id: number) {
-        return apiService.delete(`/voices/${id}`)
+        return apiService.delete(`/admin/voices/${id}`)
+    },
+
+    getVoiceCaches(id: number, params?: { page?: number, per_page?: number, search?: string, hit?: string, company_agent_id?: number }) {
+        return apiService.get<any>(`/admin/voices/${id}/caches`, { params })
     }
 }

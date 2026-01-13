@@ -50,7 +50,11 @@
         <thead class="bg-gray-50">
           <tr>
             <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Name</th>
-            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Transcript Preview</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Temperature</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Top K</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Top P</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Chunk Method</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Seed</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
           </tr>
@@ -58,7 +62,11 @@
         <tbody class="divide-y divide-gray-200 bg-white">
           <tr v-for="voice in voices" :key="voice.id">
             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ voice.name }}</td>
-            <td class="px-3 py-4 text-sm text-gray-500 max-w-xs truncate">{{ voice.transcript }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ voice.temperature || '-' }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ voice.top_k || '-' }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ voice.top_p || '-' }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ voice.chunk_method || '-' }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 font-mono">{{ voice.seed || '-' }}</td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                <span :class="[
                   voice.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 
@@ -68,23 +76,34 @@
                 {{ voice.status }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 space-x-3">
-              <button 
-                @click="openEditModal(voice)"
-                class="text-blue-600 hover:text-blue-900 font-semibold"
-              >
-                Edit
-              </button>
-              <button 
-                @click="deleteVoice(voice)"
-                class="text-red-600 hover:text-red-900 font-semibold"
-              >
-                Delete
-              </button>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <div class="flex items-center gap-2">
+                <button 
+                  @click="viewCache(voice)"
+                  class="text-green-600 hover:text-green-900"
+                  title="View Cache"
+                >
+                  <Eye class="w-5 h-5" />
+                </button>
+                <button 
+                  @click="openEditModal(voice)"
+                  class="text-blue-600 hover:text-blue-900"
+                  title="Edit"
+                >
+                  <Edit class="w-5 h-5" />
+                </button>
+                <button 
+                  @click="deleteVoice(voice)"
+                  class="text-red-600 hover:text-red-900"
+                  title="Delete"
+                >
+                  <Trash2 class="w-5 h-5" />
+                </button>
+              </div>
             </td>
           </tr>
           <tr v-if="voices.length === 0 && !loading">
-            <td colspan="4" class="px-6 py-10 text-center text-sm text-gray-500">
+            <td colspan="8" class="px-6 py-10 text-center text-sm text-gray-500">
               No voices found.
             </td>
           </tr>
@@ -128,13 +147,16 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { Plus, Eye, Edit, Trash2 } from 'lucide-vue-next'
 const PlusIcon = Plus
 import { voiceService, type AdminVoice } from '@/services/voice'
 import VoiceModal from './VoiceModal.vue'
 
+const router = useRouter()
 const voices = ref<AdminVoice[]>([])
 const loading = ref(false)
 const meta = ref({
@@ -203,6 +225,10 @@ const deleteVoice = async (voice: AdminVoice) => {
   } catch (error) {
     console.error('Failed to delete voice:', error)
   }
+}
+
+const viewCache = (voice: AdminVoice) => {
+  router.push(`/voices/${voice.id}/cache`)
 }
 
 onMounted(() => {

@@ -49,4 +49,12 @@ class AdminVoice extends Model
     {
         return $this->hasMany(CompanyAgent::class);
     }
+
+    /**
+     * Get the voice caches for this voice
+     */
+    public function voiceCaches()
+    {
+        return $this->hasMany(VoiceCache::class, 'voice_id');
+    }
 }

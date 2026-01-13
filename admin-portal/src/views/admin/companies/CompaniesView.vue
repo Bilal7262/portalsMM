@@ -88,12 +88,6 @@
                 Edit
               </button>
               <button 
-                @click="openAssignModal(company)"
-                class="text-green-600 hover:text-green-900 font-semibold"
-              >
-                Assign DID
-              </button>
-              <button 
                 @click="deleteCompany(company)"
                 class="text-red-600 hover:text-red-900 font-semibold"
               >
@@ -117,12 +111,6 @@
       />
     </div>
 
-    <!-- Assign DID Modal -->
-    <AssignDidToAgentModal 
-      v-model:open="isAssignModalOpen"
-      :company="selectedCompany"
-      @saved="handleAssigned"
-    />
 
     <CompanyModal 
       :open="isCompanyModalOpen"
@@ -139,7 +127,6 @@ import { Plus } from 'lucide-vue-next'
 const PlusIcon = Plus
 import { companyService } from '@/services/company'
 import Pagination from '@/components/ui/Pagination.vue'
-import AssignDidToAgentModal from '@/components/modals/AssignDidToAgentModal.vue'
 import CompanyModal from '@/components/modals/CompanyModal.vue'
 
 const companies = ref<any[]>([])
@@ -157,9 +144,7 @@ const filters = reactive({
   status: ''
 })
 
-const isAssignModalOpen = ref(false)
 const isCompanyModalOpen = ref(false)
-const selectedCompany = ref<any | null>(null)
 const editingCompany = ref<any | null>(null)
 
 const fetchCompanies = async (page = 1) => {
@@ -213,11 +198,6 @@ const openEditModal = (company: any) => {
   isCompanyModalOpen.value = true
 }
 
-const openAssignModal = (company: any) => {
-  selectedCompany.value = company
-  isAssignModalOpen.value = true
-}
-
 const deleteCompany = async (company: any) => {
   if (!confirm(`Are you sure you want to delete ${company.business_name}? All related data will be removed.`)) return
   
@@ -230,12 +210,8 @@ const deleteCompany = async (company: any) => {
   }
 }
 
-const handleAssigned = () => {
-  // Maybe refresh data or show success message
-  fetchCompanies(meta.value.current_page)
-}
-
 onMounted(() => {
+
     fetchCompanies()
 })
 </script>

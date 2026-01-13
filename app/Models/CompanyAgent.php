@@ -73,4 +73,12 @@ class CompanyAgent extends Model
             ->withPivot('total_minutes', 'rate_per_min', 'subtotal')
             ->withTimestamps();
     }
+
+    /**
+     * Get the voice caches for this agent
+     */
+    public function voiceCaches()
+    {
+        return $this->hasMany(VoiceCache::class);
+    }
 }

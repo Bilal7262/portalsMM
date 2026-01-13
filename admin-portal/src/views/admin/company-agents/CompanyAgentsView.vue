@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Search, Plus, Filter, AlertCircle, Edit, Trash2 } from 'lucide-vue-next'
+import { Search, Filter, AlertCircle, Edit, Trash2, CheckCircle, GraduationCap } from 'lucide-vue-next'
 import CustomPagination from '@/components/CustomPagination.vue'
 import AssignDidToAgentModal from '@/components/modals/AssignDidToAgentModal.vue'
 
@@ -44,6 +44,7 @@ const pagination = ref({
 
 const showAssignModal = ref(false)
 const selectedAgent = ref<CompanyAgent | null>(null)
+
 
 const fetchAgents = async () => {
   loading.value = true
@@ -75,15 +76,11 @@ const handlePerPageChange = (size: number) => {
   fetchAgents()
 }
 
-const openAssignModal = () => {
-    selectedAgent.value = null
-    showAssignModal.value = true
-}
-
 const editAgent = (agent: CompanyAgent) => {
     selectedAgent.value = agent
     showAssignModal.value = true
 }
+
 
 const deleteAgent = async (id: number) => {
     if(!confirm("Are you sure you want to delete this agent?")) return
@@ -92,6 +89,16 @@ const deleteAgent = async (id: number) => {
         fetchAgents()
     } catch(e) {
         console.error("Failed to delete", e)
+    }
+}
+
+const approveAgent = async (agent: CompanyAgent, status: 'training' | 'active') => {
+    if(!confirm(`Approve ${agent.name} for ${status}?`)) return
+    try {
+        await agentService.approveAgent(agent.id, status)
+        fetchAgents()
+    } catch(e) {
+        console.error("Failed to approve", e)
     }
 }
 
@@ -117,11 +124,8 @@ onMounted(() => {
         <h2 class="text-3xl font-bold tracking-tight text-foreground">Company Agents</h2>
         <p class="text-muted-foreground mt-1">Manage AI agents assigned to companies</p>
       </div>
-      <Button @click="openAssignModal" class="shadow-lg shadow-primary/20">
-        <Plus class="w-4 h-4 mr-2" />
-        Assign New DID
-      </Button>
     </div>
+
 
     <!-- Filters -->
     <div class="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
@@ -210,7 +214,17 @@ onMounted(() => {
               </Badge>
             </TableCell>
             <TableCell class="text-right">
-              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div v-if="agent.status === 'request'" class="flex items-center justify-end gap-2">
+                <Button variant="outline" size="sm" @click="approveAgent(agent, 'training')" class="text-xs">
+                  <GraduationCap class="w-3 h-3 mr-1" />
+                  Training
+                </Button>
+                <Button variant="outline" size="sm" @click="approveAgent(agent, 'active')" class="text-xs">
+                  <CheckCircle class="w-3 h-3 mr-1" />
+                  Active
+                </Button>
+              </div>
+              <div v-else class="flex items-center justify-end gap-2">
                 <Button variant="ghost" size="icon" @click="editAgent(agent)">
                   <Edit class="w-4 h-4 text-muted-foreground hover:text-foreground" />
                 </Button>

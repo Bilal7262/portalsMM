@@ -51,6 +51,11 @@ const router = createRouter({
           component: () => import('../views/admin/voices/VoicesView.vue'),
         },
         {
+          path: 'voices/:id/cache',
+          name: 'voice-cache',
+          component: () => import('../views/admin/voices/VoiceCacheView.vue'),
+        },
+        {
           path: 'reports',
           name: 'reports',
           component: () => import('../views/admin/reports/ReportsView.vue'),

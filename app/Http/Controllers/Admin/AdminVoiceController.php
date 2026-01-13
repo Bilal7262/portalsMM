@@ -109,4 +109,43 @@ class AdminVoiceController extends Controller
 
         return response()->json(['message' => 'Voice deleted successfully']);
     }
+
+    /**
+     * Get all caches for a specific voice
+     */
+    public function getCaches(Request $request, $id)
+    {
+        $voice = AdminVoice::findOrFail($id);
+
+        $query = $voice->voiceCaches()->with('companyAgent.company');
+
+        // Search filter (company agent, company name, cache_key, message)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('cache_key', 'like', "%{$search}%")
+                    ->orWhere('message', 'like', "%{$search}%")
+                    ->orWhereHas('companyAgent', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhereHas('company', function ($q3) use ($search) {
+                                $q3->where('business_name', 'like', "%{$search}%");
+                            });
+                    });
+            });
+        }
+
+        // Company Agent filter
+        if ($request->filled('company_agent_id')) {
+            $query->where('company_agent_id', $request->company_agent_id);
+        }
+
+        // Hit status filter
+        if ($request->filled('hit')) {
+            $query->where('hit', $request->hit == '1');
+        }
+
+        $caches = $query->latest()->paginate($request->input('per_page', 20));
+
+        return response()->json($caches);
+    }
 }
