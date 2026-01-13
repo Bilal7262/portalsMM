@@ -119,9 +119,10 @@
                 <button 
                   v-if="invoice.status === 'draft'"
                   @click="finalizeInvoice(invoice)"
-                  class="text-indigo-600 hover:text-indigo-900 font-semibold"
+                  class="text-indigo-600 hover:text-indigo-900"
+                  title="Finalize Invoice"
                 >
-                  Finalize
+                  <FileCheck class="w-5 h-5" />
                 </button>
               </div>
             </td>
@@ -150,7 +151,7 @@ import { useRouter } from 'vue-router'
 import { invoiceService } from '@/services/invoice'
 import { companyService } from '@/services/company'
 import Pagination from '@/components/ui/Pagination.vue'
-import { Eye } from 'lucide-vue-next'
+import { Eye, FileCheck } from 'lucide-vue-next'
 
 const router = useRouter()
 const invoices = ref<any[]>([])

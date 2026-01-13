@@ -29,7 +29,10 @@ class CallController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('user_phone', 'like', "%{$search}%")
                     ->orWhere('disposition', 'like', "%{$search}%")
-                    ->orWhere('session_id', 'like', "%{$search}%");
+                    ->orWhere('session_id', 'like', "%{$search}%")
+                    ->orWherehas('invoiceItem.agent.company', function ($q) use ($search) { // Corrected relation path
+                        $q->where('business_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -50,7 +53,7 @@ class CallController extends Controller
             'invoiceItem.invoice',
             'messages'
         ])->findOrFail($id);
-        
+
         return response()->json($call);
     }
 }

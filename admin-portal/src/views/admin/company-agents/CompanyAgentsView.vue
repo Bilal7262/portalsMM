@@ -215,13 +215,11 @@ onMounted(() => {
             </TableCell>
             <TableCell class="text-right">
               <div v-if="agent.status === 'request'" class="flex items-center justify-end gap-2">
-                <Button variant="outline" size="sm" @click="approveAgent(agent, 'training')" class="text-xs">
-                  <GraduationCap class="w-3 h-3 mr-1" />
-                  Training
+                <Button variant="ghost" size="icon" @click="approveAgent(agent, 'training')" title="Approve for Training">
+                  <GraduationCap class="w-4 h-4 text-yellow-600" />
                 </Button>
-                <Button variant="outline" size="sm" @click="approveAgent(agent, 'active')" class="text-xs">
-                  <CheckCircle class="w-3 h-3 mr-1" />
-                  Active
+                <Button variant="ghost" size="icon" @click="approveAgent(agent, 'active')" title="Approve Active">
+                  <CheckCircle class="w-4 h-4 text-green-600" />
                 </Button>
               </div>
               <div v-else class="flex items-center justify-end gap-2">

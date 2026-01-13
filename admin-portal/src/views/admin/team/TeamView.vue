@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Edit, Trash2 } from 'lucide-vue-next'
 import {
   Dialog,
   DialogContent,
@@ -220,8 +221,12 @@ async function handleDelete(id: number) {
               </span>
             </TableCell>
             <TableCell class="text-right space-x-2">
-              <Button variant="outline" size="sm" @click="openEditDialog(admin)">Edit</Button>
-              <Button variant="destructive" size="sm" @click="handleDelete(admin.id)">Delete</Button>
+              <Button variant="ghost" size="icon" @click="openEditDialog(admin)" title="Edit">
+                <Edit class="w-4 h-4 text-muted-foreground hover:text-foreground" />
+              </Button>
+              <Button variant="ghost" size="icon" @click="handleDelete(admin.id)" title="Delete">
+                <Trash2 class="w-4 h-4 text-destructive/70 hover:text-destructive" />
+              </Button>
             </TableCell>
           </TableRow>
         </TableBody>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { Eye, Play, Pause } from 'lucide-vue-next'
 import { callService, type Call } from '@/services/call'
 import { companyService, type Company } from '@/services/company'
 import Pagination from '@/components/ui/Pagination.vue'
@@ -18,6 +20,7 @@ const companies = ref<Company[]>([])
 const isLoading = ref(true)
 const search = ref('')
 const selectedCompany = ref('')
+const ratingFilter = ref('')
 const meta = ref({
   current_page: 1,
   last_page: 1,
@@ -46,6 +49,12 @@ async function fetchCalls(page = 1) {
     const params: any = { page }
     if (search.value) params.search = search.value
     if (selectedCompany.value) params.company_id = selectedCompany.value
+    
+    if (ratingFilter.value === 'rated') {
+      params.has_rating = 'true'
+    } else if (ratingFilter.value === 'low') {
+      params.low_rating = 'true'
+    }
 
     const response: any = await callService.getCalls(params)
     calls.value = response.data
@@ -67,6 +76,34 @@ async function fetchCalls(page = 1) {
 watch([search, selectedCompany], () => {
   fetchCalls(1)
 })
+
+import { useRouter } from 'vue-router'
+import { Eye, Play, Pause } from 'lucide-vue-next'
+
+const router = useRouter()
+const currentPlayingId = ref<number | null>(null)
+const audioPlayer = new Audio()
+
+const toggleAudio = (call: Call) => {
+  if (currentPlayingId.value === call.id) {
+    audioPlayer.pause()
+    currentPlayingId.value = null
+  } else {
+    if (call.call_audio_url) {
+      audioPlayer.src = call.call_audio_url
+      audioPlayer.play()
+      currentPlayingId.value = call.id
+      
+      audioPlayer.onended = () => {
+        currentPlayingId.value = null
+      }
+    }
+  }
+}
+
+const viewCall = (call: Call) => {
+  router.push(`/calls/${call.id}/messages`)
+}
 
 function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60)
@@ -110,6 +147,20 @@ function formatDate(date: string) {
           </option>
         </select>
       </div>
+
+      <div class="w-full sm:w-48">
+        <label for="rating_filter" class="block text-sm font-medium text-gray-700">Rating</label>
+        <select 
+          v-model="ratingFilter"
+          id="rating_filter"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+          @change="fetchCalls(1)"
+        >
+          <option value="">All Calls</option>
+          <option value="rated">Rated Only</option>
+          <option value="low">Low Rating (< 5)</option>
+        </select>
+      </div>
     </div>
 
     <!-- Data Table -->
@@ -127,12 +178,15 @@ function formatDate(date: string) {
             <TableHead class="font-semibold text-gray-900">Company</TableHead>
             <TableHead class="font-semibold text-gray-900">DID</TableHead>
             <TableHead class="font-semibold text-gray-900">Duration</TableHead>
+            <TableHead class="font-semibold text-gray-900">AI Rating</TableHead>
+            <TableHead class="font-semibold text-gray-900">Co. Rating</TableHead>
             <TableHead class="font-semibold text-gray-900">Disposition</TableHead>
+            <TableHead class="font-semibold text-gray-900">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-if="calls.length === 0 && !isLoading">
-             <TableCell colSpan="7" class="h-24 text-center text-gray-500">No calls found.</TableCell>
+             <TableCell colSpan="9" class="h-24 text-center text-gray-500">No calls found.</TableCell>
           </TableRow>
 
           <TableRow v-for="call in calls" :key="call.id" class="hover:bg-gray-50">
@@ -147,6 +201,20 @@ function formatDate(date: string) {
             </TableCell>
             <TableCell class="text-gray-600">{{ formatDuration(call.duration) }}</TableCell>
             <TableCell>
+              <div v-if="call.ai_rating" class="flex items-center gap-1">
+                <span class="font-medium" :class="call.ai_rating < 5 ? 'text-red-600' : 'text-gray-900'">{{ call.ai_rating }}</span>
+                <span class="text-xs text-gray-400">/10</span>
+              </div>
+              <span v-else class="text-gray-300">-</span>
+            </TableCell>
+            <TableCell>
+               <div v-if="call.company_rating" class="flex items-center gap-1">
+                <span class="font-medium" :class="call.company_rating < 5 ? 'text-red-600' : 'text-gray-900'">{{ call.company_rating }}</span>
+                <span class="text-xs text-gray-400">/10</span>
+              </div>
+              <span v-else class="text-gray-300">-</span>
+            </TableCell>
+            <TableCell>
               <span :class="[
                   call.disposition === 'SALE' ? 'bg-green-100 text-green-800' :
                   call.disposition === 'DNC' ? 'bg-red-100 text-red-800' :
@@ -155,6 +223,26 @@ function formatDate(date: string) {
                 ]">
                 {{ call.disposition }}
               </span>
+            </TableCell>
+            <TableCell class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <div class="flex items-center gap-2">
+                <button 
+                  v-if="call.call_audio_url"
+                  @click="toggleAudio(call)"
+                  class="text-indigo-600 hover:text-indigo-900"
+                  :title="currentPlayingId === call.id ? 'Pause Audio' : 'Play Audio'"
+                >
+                  <Pause v-if="currentPlayingId === call.id" class="w-5 h-5" />
+                  <Play v-else class="w-5 h-5" />
+                </button>
+                <button 
+                  @click="viewCall(call)"
+                  class="text-gray-600 hover:text-gray-900"
+                  title="View Details"
+                >
+                  <Eye class="w-5 h-5" />
+                </button>
+              </div>
             </TableCell>
           </TableRow>
         </TableBody>

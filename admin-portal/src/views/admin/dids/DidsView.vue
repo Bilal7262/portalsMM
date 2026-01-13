@@ -76,15 +76,17 @@
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right space-x-3">
               <button 
                 @click="openEditModal(did)"
-                class="text-blue-600 hover:text-blue-900 font-semibold"
+                class="text-blue-600 hover:text-blue-900"
+                title="Edit"
               >
-                Edit
+                <Edit class="w-5 h-5" />
               </button>
               <button 
                 @click="deleteDid(did)"
-                class="text-red-600 hover:text-red-900 font-semibold"
+                class="text-red-600 hover:text-red-900"
+                title="Delete"
               >
-                Delete
+                <Trash2 class="w-5 h-5" />
               </button>
             </td>
           </tr>
@@ -115,7 +117,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 const PlusIcon = Plus
 import { didService } from '@/services/did'
 import Pagination from '@/components/ui/Pagination.vue'

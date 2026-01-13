@@ -77,21 +77,24 @@
               <button 
                 v-if="company.status === 'pending'"
                 @click="approveCompany(company)"
-                class="text-indigo-600 hover:text-indigo-900 font-semibold"
+                class="text-indigo-600 hover:text-indigo-900"
+                title="Approve"
               >
-                Approve
+                <Check class="w-5 h-5" />
               </button>
               <button 
                 @click="openEditModal(company)"
-                class="text-blue-600 hover:text-blue-900 font-semibold"
+                class="text-blue-600 hover:text-blue-900"
+                title="Edit"
               >
-                Edit
+                <Edit class="w-5 h-5" />
               </button>
               <button 
                 @click="deleteCompany(company)"
-                class="text-red-600 hover:text-red-900 font-semibold"
+                class="text-red-600 hover:text-red-900"
+                title="Delete"
               >
-                Delete
+                <Trash2 class="w-5 h-5" />
               </button>
             </td>
           </tr>
@@ -123,7 +126,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, Check } from 'lucide-vue-next'
 const PlusIcon = Plus
 import { companyService } from '@/services/company'
 import Pagination from '@/components/ui/Pagination.vue'
