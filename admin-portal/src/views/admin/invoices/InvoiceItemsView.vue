@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { invoiceService } from '@/services/invoice'
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft, Eye } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -64,19 +64,17 @@ onMounted(() => {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white p-4 shadow sm:rounded-lg mb-6">
-      <div class="w-full sm:w-1/3">
+    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg">
+      <div class="flex-1">
         <label for="search" class="block text-sm font-medium text-gray-700">Search Agent/DID</label>
-        <div class="mt-1">
-          <input
-            type="text"
-            id="search"
-            v-model="filters.search"
-            @input="handleSearch"
-            placeholder="Search by name or number..."
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-        </div>
+        <input
+          type="text"
+          id="search"
+          v-model="filters.search"
+          @input="handleSearch"
+          placeholder="Search by name or number..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+        />
       </div>
     </div>
 
@@ -91,6 +89,8 @@ onMounted(() => {
             <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Agent/DID</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Company</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Minutes</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Calls</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Sales</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Rate/Min</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Subtotal</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
@@ -108,6 +108,15 @@ onMounted(() => {
               {{ item.total_minutes }} min
             </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              {{ item.total_calls }}
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20" v-if="item.total_sales > 0">
+                {{ item.total_sales }}
+              </span>
+              <span v-else>{{ item.total_sales }}</span>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
               ${{ item.rate_per_min }}
             </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-semibold">
@@ -116,9 +125,10 @@ onMounted(() => {
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
               <button 
                 @click="router.push(`/invoice-items/${item.id}/calls`)"
-                class="text-green-600 hover:text-green-900 font-semibold"
+                class="text-green-600 hover:text-green-900"
+                title="View Calls"
               >
-                View Calls
+                <Eye class="w-5 h-5" />
               </button>
             </td>
           </tr>

@@ -158,7 +158,7 @@ function formatDate(date: string) {
         >
           <option value="">All Calls</option>
           <option value="rated">Rated Only</option>
-          <option value="low">Low Rating (< 5)</option>
+          <option value="low">Low Rating (< 3)</option>
         </select>
       </div>
     </div>
@@ -202,15 +202,13 @@ function formatDate(date: string) {
             <TableCell class="text-gray-600">{{ formatDuration(call.duration) }}</TableCell>
             <TableCell>
               <div v-if="call.ai_rating" class="flex items-center gap-1">
-                <span class="font-medium" :class="call.ai_rating < 5 ? 'text-red-600' : 'text-gray-900'">{{ call.ai_rating }}</span>
-                <span class="text-xs text-gray-400">/10</span>
+                <span class="font-medium" :class="call.ai_rating < 3 ? 'text-red-600' : 'text-gray-900'">{{ Number(call.ai_rating).toFixed(1) }}</span>
               </div>
               <span v-else class="text-gray-300">-</span>
             </TableCell>
             <TableCell>
                <div v-if="call.company_rating" class="flex items-center gap-1">
-                <span class="font-medium" :class="call.company_rating < 5 ? 'text-red-600' : 'text-gray-900'">{{ call.company_rating }}</span>
-                <span class="text-xs text-gray-400">/10</span>
+                <span class="font-medium" :class="call.company_rating < 3 ? 'text-red-600' : 'text-gray-900'">{{ Number(call.company_rating).toFixed(1) }}</span>
               </div>
               <span v-else class="text-gray-300">-</span>
             </TableCell>

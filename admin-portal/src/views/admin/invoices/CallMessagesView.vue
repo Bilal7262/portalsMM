@@ -157,24 +157,17 @@ onMounted(() => {
           </span>
         </div>
         <div class="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
-          <div v-if="call.ai_rating">
-            <p class="text-sm text-gray-500">AI Rating</p>
-            <p class="font-medium" :class="call.ai_rating < 5 ? 'text-red-600' : 'text-gray-900'">{{ call.ai_rating }}/10</p>
-            <p class="text-xs text-gray-500 mt-1">{{ call.ai_feedback }}</p>
+          <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+            <div class="text-xs text-gray-500 mb-1">AI Rating</div>
+            <div class="text-xl font-bold" :class="call.ai_rating && call.ai_rating < 3 ? 'text-red-600' : 'text-indigo-600'">
+              {{ call.ai_rating ? Number(call.ai_rating).toFixed(1) : 'Not rated' }}
+            </div>
           </div>
-          <div v-else>
-            <p class="text-sm text-gray-500">AI Rating</p>
-            <p class="text-gray-400 italic">Not rated</p>
-          </div>
-
-          <div v-if="call.company_rating">
-            <p class="text-sm text-gray-500">Company Rating</p>
-            <p class="font-medium" :class="call.company_rating < 5 ? 'text-red-600' : 'text-gray-900'">{{ call.company_rating }}/10</p>
-            <p class="text-xs text-gray-500 mt-1">{{ call.company_feedback }}</p>
-          </div>
-          <div v-else>
-            <p class="text-sm text-gray-500">Company Rating</p>
-            <p class="text-gray-400 italic">Not rated</p>
+          <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+            <div class="text-xs text-gray-500 mb-1">Company Rating</div>
+            <div class="text-xl font-bold" :class="call.company_rating && call.company_rating < 3 ? 'text-red-600' : 'text-indigo-600'">
+              {{ call.company_rating ? Number(call.company_rating).toFixed(1) : 'Not rated' }}
+            </div>
           </div>
         </div>
 

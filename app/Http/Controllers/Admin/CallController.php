@@ -24,6 +24,13 @@ class CallController extends Controller
             });
         }
 
+        if ($request->filled('low_rating') && $request->low_rating == 'true') {
+            $query->where(function ($q) {
+                $q->where('ai_rating', '<', 3)
+                    ->orWhere('company_rating', '<', 3);
+            });
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

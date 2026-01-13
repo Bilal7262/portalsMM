@@ -15,23 +15,21 @@
     <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg">
       <div class="flex-1">
         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-        <div class="mt-1">
-          <input
-            v-model="filters.search"
-            type="text"
-            id="search"
-            placeholder="Search by DID number..."
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            @input="handleSearch"
-          />
-        </div>
+        <input
+          v-model="filters.search"
+          type="text"
+          id="search"
+          placeholder="Search by DID number..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+          @input="handleSearch"
+        />
       </div>
       <div class="w-full sm:w-48">
         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
         <select
           v-model="filters.status"
           id="status"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
           @change="fetchDids(1)"
         >
           <option value="">All Statuses</option>

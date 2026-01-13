@@ -128,29 +128,32 @@ onMounted(() => {
 
 
     <!-- Filters -->
-    <div class="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
-      <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-        <div class="relative w-full sm:w-64">
-          <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            v-model="searchQuery" 
-            placeholder="Search agents or companies..." 
-            class="pl-9 bg-background/50"
-            @input="fetchAgents"
-          />
-        </div>
-        <Select v-model="statusFilter" @update:modelValue="fetchAgents">
-          <SelectTrigger class="w-full sm:w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="request">Request</SelectItem>
-            <SelectItem value="training">Training</SelectItem>
-          </SelectContent>
-        </Select>
+    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg">
+      <div class="flex-1">
+        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+        <input
+          v-model="searchQuery"
+          type="text"
+          id="search"
+          placeholder="Search agents or companies..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+          @input="fetchAgents"
+        />
+      </div>
+      <div class="w-full sm:w-48">
+        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+        <select
+          v-model="statusFilter"
+          id="status"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+          @change="fetchAgents"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="request">Request</option>
+          <option value="training">Training</option>
+        </select>
       </div>
     </div>
 

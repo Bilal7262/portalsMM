@@ -67,26 +67,26 @@ function formatDate(dateString: string) {
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg mb-6 border">
+    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg mb-6 border-0">
       <div class="flex-1">
         <label for="type" class="block text-sm font-medium text-gray-700">Activity Type</label>
-        <div class="mt-1">
-          <Input
-            v-model="filters.type"
-            type="text"
-            id="type"
-            placeholder="Search by type (e.g. login, create_did)..."
-            @input="fetchLogs(1)"
-          />
-        </div>
+        <input
+          v-model="filters.type"
+          type="text"
+          id="type"
+          placeholder="Search by type (e.g. login, create_did)..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+          @input="fetchLogs(1)"
+        />
       </div>
       <div class="w-full sm:w-48">
         <label for="admin_id" class="block text-sm font-medium text-gray-700">Admin ID</label>
-        <Input
+        <input
           v-model="filters.admin_id"
           type="text"
           id="admin_id"
           placeholder="Filter by Admin ID"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
           @input="fetchLogs(1)"
         />
       </div>

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { invoiceService } from '@/services/invoice'
-import { ArrowLeft, Play, Eye } from 'lucide-vue-next'
+import { ArrowLeft, Play, Eye, Info } from 'lucide-vue-next'
 import Pagination from '@/components/ui/Pagination.vue'
 
 const route = useRoute()
@@ -23,7 +23,13 @@ const meta = ref({
 const filters = ref({
   search: '',
   disposition: '',
-  ai_rating: ''
+  rating_status: ''
+})
+
+const feedbackModal = ref({
+  isOpen: false,
+  title: '',
+  content: ''
 })
 
 let searchTimeout: NodeJS.Timeout
@@ -31,10 +37,15 @@ let searchTimeout: NodeJS.Timeout
 const fetchCalls = async (page = 1) => {
   loading.value = true
   try {
-    const params = {
+    const params: any = {
       page,
-      ...filters.value
+      search: filters.value.search,
+      disposition: filters.value.disposition
     }
+
+    if (filters.value.rating_status === 'rated') params.has_rating = true
+    if (filters.value.rating_status === 'low') params.low_rating = true
+
     const response = await invoiceService.getItemCalls(itemId.value, params)
     item.value = response.item
     calls.value = response.calls.data
@@ -73,6 +84,18 @@ const formatDuration = (seconds: number) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+const openFeedback = (title: string, content: string) => {
+  feedbackModal.value = {
+    isOpen: true,
+    title,
+    content: content || 'No feedback provided.'
+  }
+}
+
+const closeFeedback = () => {
+  feedbackModal.value.isOpen = false
+}
+
 onMounted(() => {
   fetchCalls()
 })
@@ -95,53 +118,48 @@ onMounted(() => {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white p-4 shadow sm:rounded-lg grid grid-cols-1 gap-4 sm:grid-cols-4">
-      <div>
+    <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg">
+      <div class="flex-1">
         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-        <div class="mt-1">
-          <input
-            type="text"
-            id="search"
-            v-model="filters.search"
-            @input="handleSearch"
-            placeholder="Phone, Feedback..."
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-        </div>
+        <input
+          type="text"
+          id="search"
+          v-model="filters.search"
+          @input="handleSearch"
+          placeholder="Phone, Feedback..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+        />
       </div>
 
-      <div>
+      <div class="w-full sm:w-48">
         <label for="disposition" class="block text-sm font-medium text-gray-700">Disposition</label>
-        <div class="mt-1">
-          <select
-            id="disposition"
-            v-model="filters.disposition"
-            @change="handleFilterChange"
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            <option value="">All Dispositions</option>
-            <option value="SALE">SALE</option>
-            <option value="DNC">DNC</option>
-            <option value="NO ANSWER">NO ANSWER</option>
-            <option value="BUSY">BUSY</option>
-            <option value="FAILED">FAILED</option>
-          </select>
-        </div>
+        <select
+          id="disposition"
+          v-model="filters.disposition"
+          @change="handleFilterChange"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+        >
+          <option value="">All Dispositions</option>
+          <option value="SALE">SALE</option>
+          <option value="DNC">DNC</option>
+          <option value="NO ANSWER">NO ANSWER</option>
+          <option value="BUSY">BUSY</option>
+          <option value="FAILED">FAILED</option>
+        </select>
       </div>
 
-      <div>
-        <label for="rating" class="block text-sm font-medium text-gray-700">AI Rating</label>
-        <div class="mt-1">
-          <select
-            id="rating"
-            v-model="filters.ai_rating"
-            @change="handleFilterChange"
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            <option value="">All Ratings</option>
-            <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-          </select>
-        </div>
+      <div class="w-full sm:w-48">
+        <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
+        <select
+          id="rating"
+          v-model="filters.rating_status"
+          @change="handleFilterChange"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
+        >
+          <option value="">All Calls</option>
+          <option value="rated">Rated Only</option>
+          <option value="low">Low Rating (< 3)</option>
+        </select>
       </div>
     </div>
 
@@ -166,7 +184,7 @@ onMounted(() => {
         <tbody class="divide-y divide-gray-200 bg-white">
           <tr v-for="call in calls" :key="call.id">
             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-              {{ item?.agent?.did?.phone_number || 'N/A' }}
+              {{ item?.agent?.did?.did_number || 'N/A' }}
             </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
               {{ call.user_phone || 'N/A' }}
@@ -185,20 +203,28 @@ onMounted(() => {
               </span>
             </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-              <div v-if="call.ai_rating">
-                <span class="font-semibold">{{ call.ai_rating }}/10</span>
-                <p class="text-xs text-gray-400 mt-1 max-w-xs truncate" :title="call.ai_feedback">
-                  {{ call.ai_feedback }}
-                </p>
+              <div v-if="call.ai_rating !== null" class="flex items-center gap-2">
+                <span class="font-semibold" :class="call.ai_rating < 3 ? 'text-red-600' : ''">{{ Number(call.ai_rating).toFixed(1) }}</span>
+                <button 
+                  @click="openFeedback('AI Feedback', call.ai_feedback)"
+                  class="text-gray-400 hover:text-indigo-600"
+                  title="View Feedback"
+                >
+                  <Info class="w-4 h-4" />
+                </button>
               </div>
               <span v-else class="text-gray-400">-</span>
             </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-              <div v-if="call.company_rating">
-                <span class="font-semibold">{{ call.company_rating }}/10</span>
-                <p class="text-xs text-gray-400 mt-1 max-w-xs truncate" :title="call.company_feedback">
-                  {{ call.company_feedback }}
-                </p>
+              <div v-if="call.company_rating !== null" class="flex items-center gap-2">
+                <span class="font-semibold" :class="call.company_rating < 3 ? 'text-red-600' : ''">{{ Number(call.company_rating).toFixed(1) }}</span>
+                <button 
+                  @click="openFeedback('Company Feedback', call.company_feedback)"
+                  class="text-gray-400 hover:text-indigo-600"
+                  title="View Feedback"
+                >
+                  <Info class="w-4 h-4" />
+                </button>
               </div>
               <span v-else class="text-gray-400">-</span>
             </td>
@@ -238,6 +264,22 @@ onMounted(() => {
         :meta="meta"
         @page-change="fetchCalls"
       />
+    </div>
+
+    <!-- Feedback Modal -->
+    <div v-if="feedbackModal.isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ feedbackModal.title }}</h3>
+        <p class="text-gray-600 text-sm whitespace-pre-wrap">{{ feedbackModal.content }}</p>
+        <div class="mt-6 flex justify-end">
+          <button 
+            @click="closeFeedback"
+            class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

@@ -11,7 +11,8 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         $query = CompanyAgentInvoice::query()
-            ->with(['company', 'items.agent.did']);
+            ->with(['company', 'items.agent.did'])
+            ->withSum('items', 'total_minutes');
 
         // Optional filters - use filled() instead of has() to ignore empty strings
         if ($request->filled('status')) {
@@ -79,8 +80,14 @@ class InvoiceController extends Controller
     {
         $invoice = CompanyAgentInvoice::with('company')->findOrFail($id);
 
-        $items = $invoice->items()
+        $items = \App\Models\CompanyAgentInvoiceItem::where('company_agent_invoice_id', $id)
             ->with(['agent.did', 'agent.company'])
+            ->withCount([
+                'calls as total_calls',
+                'calls as total_sales' => function ($query) {
+                    $query->where('disposition', 'SALE');
+                }
+            ])
             ->get();
 
         return response()->json([
@@ -89,14 +96,41 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function getItemCalls($itemId)
+    public function getItemCalls($itemId, Request $request)
     {
         $item = \App\Models\CompanyAgentInvoiceItem::with(['agent.did', 'agent.company', 'invoice'])
             ->findOrFail($itemId);
 
-        $calls = \App\Models\Call::where('company_agent_invoice_item_id', $itemId)
-            ->latest()
-            ->paginate(50);
+        $query = \App\Models\Call::where('company_agent_invoice_item_id', $itemId);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('user_phone', 'like', "%{$search}%")
+                    ->orWhere('disposition', 'like', "%{$search}%")
+                    ->orWhere('ai_feedback', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('disposition')) {
+            $query->where('disposition', $request->disposition);
+        }
+
+        if ($request->filled('has_rating') && $request->has_rating == 'true') {
+            $query->where(function ($q) {
+                $q->whereNotNull('ai_rating')
+                    ->orWhereNotNull('company_rating');
+            });
+        }
+
+        if ($request->filled('low_rating') && $request->low_rating == 'true') {
+            $query->where(function ($q) {
+                $q->where('ai_rating', '<', 3)
+                    ->orWhere('company_rating', '<', 3);
+            });
+        }
+
+        $calls = $query->latest()->paginate(50);
 
         return response()->json([
             'item' => $item,

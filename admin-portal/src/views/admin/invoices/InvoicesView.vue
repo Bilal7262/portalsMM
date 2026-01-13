@@ -6,12 +6,12 @@
 
     <!-- Filters -->
     <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg">
-      <div class="w-full sm:w-48">
+      <div class="w-full sm:w-64">
         <label for="company" class="block text-sm font-medium text-gray-700">Company</label>
         <select
           v-model="filters.company_id"
           id="company"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
           @change="fetchInvoices(1)"
         >
           <option value="">All Companies</option>
@@ -25,7 +25,7 @@
         <select
           v-model="filters.month"
           id="month"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
           @change="fetchInvoices(1)"
         >
           <option value="">All Months</option>
@@ -48,7 +48,7 @@
         <select
           v-model="filters.year"
           id="year"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
           @change="fetchInvoices(1)"
         >
           <option value="">All Years</option>
@@ -62,7 +62,7 @@
         <select
           v-model="filters.status"
           id="status"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 px-3"
           @change="fetchInvoices(1)"
         >
           <option value="">All Statuses</option>
@@ -86,6 +86,7 @@
           <tr>
             <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Invoice #</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Company</th>
+            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Duration</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Amount</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
@@ -95,6 +96,9 @@
           <tr v-for="invoice in invoices" :key="invoice.id">
             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ invoice.invoice_number }}</td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ invoice.company?.business_name }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+               {{ formatDuration((invoice.items_sum_total_minutes || 0) * 60) }}
+            </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${{ invoice.total_amount }}</td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                <span :class="[
@@ -229,5 +233,11 @@ onMounted(() => {
     fetchInvoices()
     fetchCompanies()
 })
+
+function formatDuration(seconds: number) {
+  const m = Math.floor(seconds / 60)
+  const s = Math.round(seconds % 60)
+  return `${m}m ${s}s`
+}
 </script>
 

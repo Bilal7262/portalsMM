@@ -1,65 +1,92 @@
-first understand the whole context
+PROJECT DOCUMENTATION
+=====================
 
-i have to create api for company portal
+1. PROJECT OVERVIEW
+-------------------
+This project is a Voice AI Management System consisting of a Laravel Backend and two Vue.js Frontends (Admin Portal and Company Portal). It manages Companies, Agents (AI Voices), DIDs (Phone Numbers), Invoices, and Calls.
 
-and i also want to setup admin portal in vue of its own
+2. DATABASE SCHEMA
+------------------
+Based on migration files, the database contains the following tables:
+- users (Standard Laravel users, likely unused or for superadmin)
+- admins (Admin portal users)
+- companies (Business entities)
+- company_users (Users belonging to companies)
+- dids (Phone numbers available in the system)
+- company_dids (Association of DIDs to companies - *likely deprecated/refactored to company_agents*)
+- company_agents (AI Agents assigned to companies, linked to DIDs and Voices)
+- admin_voices (Master list of available AI voices)
+- voice_cache (Caching mechanism for voice generation/retrieval)
+- calls (Record of calls made/received)
+- call_messages (Transcript/Message history of calls)
+- company_agent_invoices (Invoices generated for companies)
+- company_agent_invoice_items (Line items within invoices)
+- company_activity_logs (Audit logs for company actions)
+- admin_activity_logs (Audit logs for admin actions)
+- jobs (Laravel queue jobs)
+- personal_access_tokens (Sanctum authentication tokens)
 
-tables and information 
-companies table
-id,email (unique) ,phone (unique), cnic/pasport (image url), bussiness_name, bussiness_address, verify_email (bool)(otp sent to email to verify when register), verify_phone (bool) (our team manually call the company and verify its account)
+3. BACKEND API STRUCTURE (Laravel)
+----------------------------------
+Base URL: /api
 
-dids table
-id, did_number
+A. Admin Portal Routes (/api/admin)
+   - Auth: /login, /logout, /me
+   - Resources:
+     - /companies (CRUD)
+     - /dids (CRUD)
+     - /invoices (Index, Show, Update)
+       - /invoices/{id}/items
+       - /invoice-items/{id}/calls
+     - /calls (Index, Show)
+       - /calls/{id}/messages
+     - /voices (CRUD)
+       - /voices/{id}/caches
+     - /company-agents (CRUD, Approve)
+     - /admins (CRUD, Roles) - Team Management
+   - Reports: /reports
+   - Activity Logs: /activity-logs
 
-company_dids
-id, company_id, did_id,price_per_min, start_date, end_date, status(active,inactive), last_use(date)
+B. Company Portal Routes (/api/company)
+   - Auth: /register, /verify-email, /login, /logout, /me
+   - agents:
+     - /agents (CRUD)
+     - /agents/available-voices
+   - users: /users (Company User Management)
+   - invoices:
+     - /invoices (List, Show)
+     - /invoices/{id}/calls
+     - /invoices/{id}/download
+   - calls:
+     - /calls (List, Show, Feedback)
+     - /calls/current-month (Stats)
+     - /calls/{callId}/messages (Chat history)
+   - activity-logs: /activity-logs
 
-company_did_invoices table
-id, company_did_id, effective_from(date), effective_to(date), total_minuits_consumption (integer),billed_ammount (company_did_invoices.total_minuits_consumption * company_dids.price_per_min), status (Draft, Finalized, Paid) (Draft will not show on company portal it will show only admin portal)
+4. FRONTEND STRUCTURE
+---------------------
 
-calls
-id, company_did_invoice_id, session_id, user_phone, call_audio (audio file link),  call_transcreption, duration (integer), disposition (all vicidial call dispositions), ai_feedback, ai_rating, company_feedback, company_rating
+A. Admin Portal (Vue.js)
+   - Dashboard (/dashboard)
+   - Companies (/companies) - Manage businesses
+   - DIDs (/dids) - Manage inventory of phone numbers
+   - Company Agents (/company-agents) - Manage AI agents assigned to companies
+   - Invoices (/invoices)
+     - Invoice Items (/invoices/:id/items)
+     - Item Calls (/invoice-items/:id/calls)
+     - Call Details/Messages (/calls/:id/messages)
+   - Voices (/voices)
+     - Voice Cache (/voices/:id/cache)
+   - Reports (/reports) - AI & Company Ratings, Call Analysis
+   - Team (/team) - Admin user management
+   - Activity Logs (/activity-logs)
 
-     
-
-
-create api for company portal
-there should be company_users table for company portal
-
-company_users table
-id, company_id, name, email, status(active/inactive)
-jab aik company register ho ge to default  company_users table me  row insert ho ge jis ka role admin hoga
-
-or company portal wo use kar sakta hy company_users table se 
-ab wo cpmpany portal sy new user create kar sakta hy or apny company k users k roles change kar sakta hy
-
-compny_user_activity_logs table
-id, company_user_id, activity_type, activity_details, activity_date
-
-bhe manage hoga to cpmpany portal k sary logs create hon gy k kn sy company user ny kn c call ko kia rating d hy kia feedback dia hy 
-kia kam kea hy or yeh sab kam api main hoga
-
-ise trha hamary vue portal main hamara admin portal bany ga
-or us main admins table k users access kar sakain gy
-admins table
-id, name, email, status(active/inactive)
-
-ab yeh admins hamary admin portal main access kar sakain gy
-or us main bhe roles hongi admin, super admin wagera
-
-ab admin portal main 
-hamara admin company profile ko approve kary ga. 
-dids table main new did add kary ga
-
-company_dids pr crud kar sakta hy
-
-company_did_invoices k status ko finalize kar sakta hy
-
-baqi chezain view kar sakta hy
-
-
-
-
-
-
-
+B. Company Portal (Vue.js)
+   - Dashboard (/dashboard)
+   - Agents (/agents) - Manage own AI agents
+   - Users (/users) - Manage company staff
+   - Invoices (/invoices)
+     - Invoice Calls (/invoices/:id/calls)
+   - Calls (/calls)
+     - Call History (/call-history)
+   - Activity Logs (/activity-logs)
