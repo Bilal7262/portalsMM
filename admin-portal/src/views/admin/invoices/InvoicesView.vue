@@ -7,6 +7,57 @@
     <!-- Filters -->
     <div class="flex flex-col sm:flex-row gap-4 bg-white p-4 shadow sm:rounded-lg">
       <div class="w-full sm:w-48">
+        <label for="company" class="block text-sm font-medium text-gray-700">Company</label>
+        <select
+          v-model="filters.company_id"
+          id="company"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          @change="fetchInvoices(1)"
+        >
+          <option value="">All Companies</option>
+          <option v-for="company in companies" :key="company.id" :value="company.id">
+            {{ company.business_name }}
+          </option>
+        </select>
+      </div>
+      <div class="w-full sm:w-48">
+        <label for="month" class="block text-sm font-medium text-gray-700">Month</label>
+        <select
+          v-model="filters.month"
+          id="month"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          @change="fetchInvoices(1)"
+        >
+          <option value="">All Months</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="w-full sm:w-48">
+        <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+        <select
+          v-model="filters.year"
+          id="year"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          @change="fetchInvoices(1)"
+        >
+          <option value="">All Years</option>
+          <option v-for="year in years" :key="year" :value="year">
+            {{ year }}
+          </option>
+        </select>
+      </div>
+      <div class="w-full sm:w-48">
         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
         <select
           v-model="filters.status"
@@ -57,13 +108,22 @@
               </span>
             </td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-              <button 
-                v-if="invoice.status === 'draft'"
-                @click="finalizeInvoice(invoice)"
-                class="text-indigo-600 hover:text-indigo-900 font-semibold"
-              >
-                Finalize
-              </button>
+              <div class="flex items-center gap-2">
+                <button 
+                  @click="viewInvoiceItems(invoice)"
+                  class="text-green-600 hover:text-green-900"
+                  title="View Items"
+                >
+                  <Eye class="w-5 h-5" />
+                </button>
+                <button 
+                  v-if="invoice.status === 'draft'"
+                  @click="finalizeInvoice(invoice)"
+                  class="text-indigo-600 hover:text-indigo-900 font-semibold"
+                >
+                  Finalize
+                </button>
+              </div>
             </td>
           </tr>
           <tr v-if="invoices.length === 0 && !loading">
@@ -85,11 +145,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { invoiceService } from '@/services/invoice'
+import { companyService } from '@/services/company'
 import Pagination from '@/components/ui/Pagination.vue'
+import { Eye } from 'lucide-vue-next'
 
+const router = useRouter()
 const invoices = ref<any[]>([])
+const companies = ref<any[]>([])
 const loading = ref(false)
 const meta = ref({
   current_page: 1,
@@ -100,7 +165,16 @@ const meta = ref({
 })
 
 const filters = reactive({
-  status: ''
+  status: '',
+  company_id: '',
+  month: '',
+  year: ''
+})
+
+// Generate years array (current year ± 2 years)
+const currentYear = new Date().getFullYear()
+const years = computed(() => {
+  return [currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2]
 })
 
 const fetchInvoices = async (page = 1) => {
@@ -108,7 +182,10 @@ const fetchInvoices = async (page = 1) => {
     try {
         const response = await invoiceService.getInvoices({
             page,
-            status: filters.status
+            status: filters.status,
+            company_id: filters.company_id,
+            month: filters.month,
+            year: filters.year
         })
         invoices.value = response.data
         meta.value = {
@@ -125,6 +202,19 @@ const fetchInvoices = async (page = 1) => {
     }
 }
 
+const fetchCompanies = async () => {
+    try {
+        const response = await companyService.getCompanies({ per_page: 1000 })
+        companies.value = response.data
+    } catch (error) {
+        console.error('Failed to fetch companies:', error)
+    }
+}
+
+const viewInvoiceItems = (invoice: any) => {
+  router.push(`/invoices/${invoice.id}/items`)
+}
+
 const finalizeInvoice = async (invoice: any) => {
     try {
         await invoiceService.updateInvoiceStatus(invoice.id, 'generated')
@@ -136,6 +226,7 @@ const finalizeInvoice = async (invoice: any) => {
 
 onMounted(() => {
     fetchInvoices()
+    fetchCompanies()
 })
 </script>
 

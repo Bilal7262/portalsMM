@@ -27,5 +27,21 @@ export const invoiceService = {
 
     async updateInvoiceStatus(id: number, status: string) {
         return apiService.put<Invoice>(`/admin/invoices/${id}`, { status })
+    },
+
+    async getInvoiceItems(id: number, params?: any) {
+        return apiService.get<any>(`/admin/invoices/${id}/items`, { params })
+    },
+
+    async getItemCalls(itemId: number, params?: any) {
+        return apiService.get<any>(`/admin/invoice-items/${itemId}/calls`, { params })
+    },
+
+    async getCallMessages(callId: number) {
+        return apiService.get<any>(`/admin/calls/${callId}/messages`)
+    },
+
+    async getCallDetails(callId: number) {
+        return apiService.get<any>(`/admin/calls/${callId}`)
     }
 }

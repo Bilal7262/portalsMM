@@ -68,7 +68,7 @@ class ScaleSeeder extends Seeder
             'seed' => null,
             'status' => 'active',
         ]);
-        
+
         $this->command->info("Creating specialized admin voice...");
         $specializedVoice = AdminVoice::updateOrCreate(
             ['name' => 'Specialized Voice'],
@@ -140,7 +140,7 @@ class ScaleSeeder extends Seeder
 
                     // Create or get invoice for this month (one invoice per company per month)
                     $invoiceNumber = 'INV-' . $company->id . '-' . $monthStart->format('Ym') . '-' . $d;
-                    
+
                     $invoice = CompanyAgentInvoice::updateOrCreate(
                         [
                             'company_id' => $company->id,
@@ -200,7 +200,7 @@ class ScaleSeeder extends Seeder
                             CallMessage::create([
                                 'call_id' => $call->id,
                                 'type' => $msg['type'],
-                                'audio' => null,
+                                'audio' => $msg['type'] === 'bot' ? 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg' : null,
                                 'text' => $msg['text'],
                             ]);
                         }

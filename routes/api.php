@@ -34,6 +34,10 @@ Route::prefix('admin')->group(function () {
         // Admin Resources
         Route::apiResource('companies', AdminCompanyController::class);
         Route::apiResource('dids', AdminDidController::class);
+        Route::get('invoices/{id}/items', [AdminInvoiceController::class, 'getInvoiceItems']);
+        Route::get('invoice-items/{id}/calls', [AdminInvoiceController::class, 'getItemCalls']);
+        Route::get('calls/{id}/messages', [AdminInvoiceController::class, 'getCallMessages']);
+        Route::get('calls/{id}', [AdminInvoiceController::class, 'getCallDetails']);
         Route::apiResource('invoices', AdminInvoiceController::class)->only(['index', 'show', 'update']);
 
         // Admin Voices

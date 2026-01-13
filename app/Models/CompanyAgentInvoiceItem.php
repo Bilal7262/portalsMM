@@ -45,6 +45,6 @@ class CompanyAgentInvoiceItem extends Model
      */
     public function calls()
     {
-        return $this->hasMany(Call::class);
+        return $this->hasMany(Call::class, 'company_agent_invoice_item_id');
     }
 }

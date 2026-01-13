@@ -46,6 +46,21 @@ const router = createRouter({
           component: () => import('../views/admin/invoices/InvoicesView.vue'),
         },
         {
+          path: 'invoices/:id/items',
+          name: 'invoice-items',
+          component: () => import('../views/admin/invoices/InvoiceItemsView.vue'),
+        },
+        {
+          path: 'invoice-items/:id/calls',
+          name: 'invoice-item-calls',
+          component: () => import('../views/admin/invoices/CallDetailsView.vue'),
+        },
+        {
+          path: 'calls/:id/messages',
+          name: 'call-messages',
+          component: () => import('../views/admin/invoices/CallMessagesView.vue'),
+        },
+        {
           path: 'voices',
           name: 'voices',
           component: () => import('../views/admin/voices/VoicesView.vue'),
