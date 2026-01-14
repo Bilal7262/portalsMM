@@ -17,6 +17,7 @@ export interface AdminVoice {
     ras_win_len?: number
     ras_win_max_num_repeat?: number
     seed?: number
+    audio?: string
     status: 'active' | 'inactive'
     created_at: string
     updated_at: string
@@ -38,11 +39,14 @@ export const voiceService = {
         return apiService.get<AdminVoice>(`/admin/voices/${id}`)
     },
 
-    createVoice(data: Partial<AdminVoice>) {
+    createVoice(data: Partial<AdminVoice> | FormData) {
         return apiService.post<AdminVoice>('/admin/voices', data)
     },
 
-    updateVoice(id: number, data: Partial<AdminVoice>) {
+    updateVoice(id: number, data: Partial<AdminVoice> | FormData) {
+        if (data instanceof FormData) {
+            return apiService.post<AdminVoice>(`/admin/voices/${id}`, data)
+        }
         return apiService.put<AdminVoice>(`/admin/voices/${id}`, data)
     },
 

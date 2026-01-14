@@ -26,6 +26,7 @@ class AdminVoice extends Model
         'ras_win_len',
         'ras_win_max_num_repeat',
         'seed',
+        'audio',
         'status',
     ];
 

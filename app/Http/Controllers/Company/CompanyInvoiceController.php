@@ -14,7 +14,8 @@ class CompanyInvoiceController extends Controller
         $companyId = $request->user()->company_id;
 
         $query = CompanyAgentInvoice::where('company_id', $companyId)
-            ->with(['items.agent.did']);
+            ->with(['items.agent.did'])
+            ->withSum('items', 'total_minutes');
 
         // Filter by Status
         if ($request->filled('status')) {
@@ -51,6 +52,7 @@ class CompanyInvoiceController extends Controller
         $invoice = CompanyAgentInvoice::where('company_id', $companyId)
             ->where('id', $id)
             ->with(['items.agent.did'])
+            ->withSum('items', 'total_minutes')
             ->firstOrFail();
 
         return response()->json($invoice);
@@ -75,7 +77,7 @@ class CompanyInvoiceController extends Controller
             fputcsv($file, ['Billing Period', $invoice->effective_from . ' to ' . $invoice->effective_to]);
             fputcsv($file, ['Total Amount', '$' . number_format($invoice->total_amount, 2)]);
             fputcsv($file, []);
-            
+
             // Itemized Agent Summary
             fputcsv($file, ['Agent Summary']);
             fputcsv($file, ['Agent', 'DID', 'Minutes', 'Rate', 'Subtotal']);
@@ -88,7 +90,7 @@ class CompanyInvoiceController extends Controller
                     '$' . $item->subtotal
                 ]);
             }
-            
+
             fputcsv($file, []);
             fputcsv($file, ['Call Details']);
             fputcsv($file, ['Agent', 'Date', 'User Phone', 'Duration (Sec)', 'Disposition']);
@@ -120,7 +122,7 @@ class CompanyInvoiceController extends Controller
             ->firstOrFail();
 
         // Query calls through invoice items
-        $query = Call::whereHas('invoiceItem', function($q) use ($id) {
+        $query = Call::whereHas('invoiceItem', function ($q) use ($id) {
             $q->where('company_agent_invoice_id', $id);
         })->with(['invoiceItem.agent.did']);
 

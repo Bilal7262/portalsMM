@@ -2,12 +2,12 @@
 import { ref, onMounted, reactive } from 'vue'
 import api from '@/lib/axios'
 import CustomPagination from '@/components/CustomPagination.vue'
+import { useRouter } from 'vue-router'
 import { 
-  Bot, 
   Search,
   Plus,
   Edit,
-  Trash2
+  Trash2,
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 
+const router = useRouter()
+
 const agents = ref<any[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
@@ -45,6 +47,8 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const submitting = ref(false)
 const voices = ref<any[]>([])
+
+
 
 const form = reactive({
     id: null as number | null,
@@ -91,14 +95,7 @@ const fetchVoices = async () => {
 }
 
 const openCreateModal = () => {
-    isEditMode.value = false
-    form.id = null
-    form.name = ''
-    form.admin_voice_id = ''
-    form.script = ''
-    form.quantity = 1
-    fetchVoices()
-    isModalOpen.value = true
+    router.push('/agents/request')
 }
 
 const openEditModal = (agent: any) => {
@@ -245,18 +242,19 @@ onMounted(() => {
   </div>
 
   <Dialog v-model:open="isModalOpen">
-      <DialogContent>
+      <DialogContent class="sm:max-w-[600px]">
           <DialogHeader>
-              <DialogTitle>{{ isEditMode ? 'Edit Agent' : 'Request New Agent' }}</DialogTitle>
-              <DialogDescription>Configure agent details and script.</DialogDescription>
+              <DialogTitle>Edit Agent</DialogTitle>
+              <DialogDescription>Update agent details.</DialogDescription>
           </DialogHeader>
+          
           <div class="grid gap-4 py-4">
-              <div class="grid gap-2">
-                  <Label>Name</Label>
-                  <Input v-model="form.name" placeholder="e.g. Sales Bot 1" />
-              </div>
                <div class="grid gap-2">
-                  <Label>Voice</Label>
+                  <Label>Agent Name</Label>
+                  <Input v-model="form.name" />
+              </div>
+              <div class="grid gap-2">
+                   <Label>Voice</Label>
                    <Select v-model="form.admin_voice_id">
                         <SelectTrigger>
                             <SelectValue placeholder="Select a voice" />
@@ -272,20 +270,16 @@ onMounted(() => {
                   <Label>Script</Label>
                   <textarea 
                     v-model="form.script" 
-                    class="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter agent script..."
+                    class="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   ></textarea>
               </div>
-               <div v-if="!isEditMode" class="grid gap-2">
-                  <Label>Quantity</Label>
-                  <Input v-model="form.quantity" type="number" min="1" />
-              </div>
           </div>
+
           <DialogFooter>
-              <Button variant="outline" @click="isModalOpen = false">Cancel</Button>
-              <Button @click="submitForm" :disabled="submitting">
-                  {{ submitting ? 'Saving...' : 'Save' }}
-              </Button>
+               <Button variant="outline" @click="isModalOpen = false">Cancel</Button>
+               <Button @click="submitForm" :disabled="submitting">
+                   {{ submitting ? 'Saving...' : 'Save Changes' }}
+               </Button>
           </DialogFooter>
       </DialogContent>
   </Dialog>

@@ -89,8 +89,8 @@ const fetchInvoiceDetails = async () => {
             displayId: `INV-${response.data.id}`,
             period: response.data.effective_from ? new Date(response.data.effective_from).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A',
             date: response.data.created_at ? new Date(response.data.created_at).toLocaleDateString() : 'N/A',
-            minutes: response.data.total_minutes_consumption || 0,
-            amount: response.data.billed_amount ? parseFloat(response.data.billed_amount) : 0,
+            minutes: response.data.items_sum_total_minutes ? parseInt(response.data.items_sum_total_minutes) : 0,
+            amount: response.data.total_amount ? parseFloat(response.data.total_amount) : 0,
             status: response.data.status || 'Unknown'
         }
     } catch (e) {

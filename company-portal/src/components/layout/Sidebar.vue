@@ -44,7 +44,7 @@ function logout() {
           <Phone class="w-5 h-5 text-primary-foreground" />
         </div>
         <span class="font-bold text-lg tracking-tight text-foreground">
-          Nano<span class="text-primary">Banana</span>
+          Speak<span class="text-primary">Sync</span>
         </span>
       </div>
     </div>

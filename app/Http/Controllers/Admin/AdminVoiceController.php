@@ -52,7 +52,14 @@ class AdminVoiceController extends Controller
             'ras_win_max_num_repeat' => 'integer|min:1',
             'seed' => 'nullable|integer',
             'status' => 'in:active,inactive',
+            'audio' => 'nullable|file|mimes:mp3,wav,m4a,ogg|max:10240', // Max 10MB
         ]);
+
+        // Handle Audio Upload
+        if ($request->hasFile('audio')) {
+            $path = $request->file('audio')->store('voices/previews', 'public');
+            $validated['audio'] = url('storage/' . $path);
+        }
 
         $voice = AdminVoice::create($validated);
 
@@ -92,7 +99,15 @@ class AdminVoiceController extends Controller
             'ras_win_max_num_repeat' => 'integer|min:1',
             'seed' => 'nullable|integer',
             'status' => 'in:active,inactive',
+            'audio' => 'nullable|file|mimes:mp3,wav,m4a,ogg|max:10240',
         ]);
+
+        // Handle Audio Upload
+        if ($request->hasFile('audio')) {
+            // Delete old file if exists? (Optional improvement)
+            $path = $request->file('audio')->store('voices/previews', 'public');
+            $validated['audio'] = url('storage/' . $path);
+        }
 
         $voice->update($validated);
 

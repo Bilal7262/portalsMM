@@ -63,6 +63,16 @@ const router = createRouter({
             name: 'agents',
             component: () => import('../views/Agents.vue')
         },
+        {
+            path: '/agents/request',
+            name: 'request-agent',
+            component: () => import('../views/RequestAgent.vue')
+        },
+        {
+            path: '/live-demo',
+            name: 'live-demo',
+            component: () => import('../views/LiveDemo.vue'),
+        },
         // Marketing/Landing page or Auth will go here later
     ]
 })

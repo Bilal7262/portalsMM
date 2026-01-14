@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { Users, Phone, DollarSign, Activity } from 'lucide-vue-next'
+import { Users, Phone, DollarSign, Activity, Mic } from 'lucide-vue-next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 </script>
 
 <template>
@@ -86,9 +89,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
       <div class="col-span-3 rounded-xl border border-border bg-card p-6 shadow-sm">
         <h3 class="font-semibold text-lg text-foreground mb-4">Quick Actions</h3>
         <div class="space-y-4">
-           <button class="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all group">
-             <span class="text-sm font-medium">Create New Agent</span>
+           <button class="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all group" @click="router.push('/agents/request')">
+             <span class="text-sm font-medium">Request New Agent</span>
              <Users class="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+           </button>
+           <button class="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all group" @click="router.push('/live-demo')">
+             <span class="text-sm font-medium">Live Demo</span>
+             <Mic class="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
            </button>
            <button class="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all group">
              <span class="text-sm font-medium">Purchase DID</span>

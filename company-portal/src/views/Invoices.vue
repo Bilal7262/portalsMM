@@ -67,8 +67,8 @@ const fetchInvoices = async () => {
              period: inv.effective_from ? new Date(inv.effective_from).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A',
              date: inv.created_at ? new Date(inv.created_at).toLocaleDateString() : 'N/A',
              dueDate: inv.effective_to ? new Date(inv.effective_to).toLocaleDateString() : 'N/A',
-             minutes: inv.total_minutes_consumption || 0,
-             amount: inv.billed_amount ? parseFloat(inv.billed_amount) : 0,
+             minutes: inv.items_sum_total_minutes ? parseInt(inv.items_sum_total_minutes) : 0,
+             amount: inv.total_amount ? parseFloat(inv.total_amount) : 0,
              status: inv.status || 'Unknown'
         }))
 

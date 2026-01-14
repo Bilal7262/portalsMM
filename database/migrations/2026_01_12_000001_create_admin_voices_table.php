@@ -27,6 +27,7 @@ return new class extends Migration {
             $table->integer('ras_win_len')->default(10);
             $table->integer('ras_win_max_num_repeat')->default(3);
             $table->integer('seed')->nullable(); // Random seed for reproducibility
+            $table->string('audio')->nullable();
             $table->string('status')->default('active'); // active, inactive
             $table->softDeletes();
             $table->timestamps();
